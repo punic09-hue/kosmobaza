@@ -457,6 +457,7 @@ kbd{display:none}
 #cl-code{font-size:32px;letter-spacing:12px;width:160px;text-align:center}
 #b-cloud{margin-right:12px}
 .arcl{display:grid;gap:8px;margin:8px 0}.arci{display:flex;justify-content:space-between;align-items:center;gap:10px}
+#arc-quit{position:fixed;top:12px;right:12px;z-index:50}
 
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
@@ -2307,7 +2308,7 @@ const ARC = (() => {
     const gm = Math.floor(sc / 5); S.gems = (S.gems || 0) + gm; save(); dqEvent("arcade", {score:sc});
     ov(`<div class="arc-card"><div class="eyebrow">Время вышло</div><h2>${sc} ${sc % 10 === 1 && sc % 100 !== 11 ? "очко" : sc % 10 >= 2 && sc % 10 <= 4 && (sc % 100 < 10 || sc % 100 >= 20) ? "очка" : "очков"}${rec && sc ? " · 🏆 рекорд!" : ""}</h2>
       <p>${gm ? `+${gm} 💎 кристаллов в арсенал. ` : "Кристалл даётся за каждые 5 очков. "}Рекорд: ${S.arcBest[k] || 0}.</p><p class="joke">${esc(pick(BREAKS)[1])}</p>
-      <button class="big" id="arc-end">В бой! Волна ${Math.floor(R.i / WAVE) + 1} →</button></div>`);
+      <button class="big" id="arc-end">${st.test ? "Выйти в Штаб" : `В бой! Волна ${Math.floor(R.i / WAVE) + 1} →`}</button></div>`);
     $("#arc-end").onclick = () => { ov(""); stop(); const cb = st.done; st = null; cb(); }; }
   const addScore = (v, X, Y, col) => { st.score = Math.max(0, st.score + v); $("#arc-sc").textContent = st.score; st.fx.push({txt:(v > 0 ? "+" : "") + v, x:X, y:Y, life:1, col}); };
   function burst(X, Y, col, k = 26){ const d = A.d; for (let i = 0; i < k; i++) { const a = Math.random() * Math.PI * 2, s = (60 + Math.random() * 260) * d; st.fx.push({p:1, x:X, y:Y, vx:Math.cos(a) * s, vy:Math.sin(a) * s, life:.5 + Math.random() * .5, col:Math.random() < .5 ? col : "#fff", r:(1.5 + Math.random() * 2.5) * d}); } }
@@ -2462,7 +2463,8 @@ const ARC = (() => {
     }
 
   };
-  return {run, key};
+  function quit(){ ov(""); stop(); const cb = st && st.done; st = null; if (cb) cb(); }
+  return {run, key, quit, get st(){ return st; }};
 })();
 
 /* ---------- задание дня, серия, сундук, кристаллы ---------- */
@@ -2925,7 +2927,8 @@ function cloudDlg(){
    <div class="row"><button class="say" id="b-gh">Сохранить ключ и выгрузить сейчас</button><span class="joke" id="gh-msg">${esc(CLOUD.status())}</span></div>`;
   const P = $("#parent"), anchor = P.querySelector("#b-reset")?.closest(".row"); anchor ? anchor.before(box) : P.appendChild(box);
   box.querySelectorAll("[data-arc]").forEach(c => c.onchange = () => { const k = c.dataset.arc; S.cfg.arcOff = (S.cfg.arcOff || []).filter(x => x !== k); if (!c.checked) S.cfg.arcOff.push(k); save(); });
-  box.querySelectorAll("[data-play]").forEach(b => b.onclick = () => { const g = S.gems, d = JSON.stringify(S.dq || null); ARC.run(1 + Math.floor(Math.random() * 9), b.dataset.play, () => { S.gems = g; if (d !== "null") S.dq = JSON.parse(d); save(); parent(); }); });
+  box.querySelectorAll("[data-play]").forEach(b => b.onclick = () => { const g = S.gems, d = JSON.stringify(S.dq || null); ARC.run(1 + Math.floor(Math.random() * 9), b.dataset.play, () => { $("#arc-quit")?.remove(); S.gems = g; if (d !== "null") S.dq = JSON.parse(d); save(); parent(); }); ARC.st.test = true;
+    const q = document.createElement("button"); q.id = "arc-quit"; q.className = "say"; q.textContent = "✕ Выйти из теста"; q.onclick = () => ARC.quit(); $("#v-arc").appendChild(q); });
   $("#b-gh").onclick = async () => { const v = $("#i-gh").value.trim(); if (v && !v.startsWith("•")) localStorage.setItem(CLOUD.TK, v); $("#gh-msg").textContent = "Выгружаю…"; const ok = await CLOUD.push(); $("#gh-msg").textContent = CLOUD.status(); if (ok) box.querySelector(".cl-code").textContent = S.cloud; };
 }; }
 const ARC_NAMES = {catch:"🧲 Ловец слов", rocks:"☄️ Метеоритный дождь", tir:"🎯 Тир на скорость", feed:"🍕 Покорми монстра", mole:"🔨 Бонк пришельцев", gum:"🫧 Жвачка"};
