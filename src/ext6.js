@@ -315,7 +315,7 @@ const ARC = (() => {
       <p>${gm ? `+${gm} 💎 кристаллов в арсенал. ` : "Кристалл даётся за каждые 5 очков. "}Рекорд: ${S.arcBest[k] || 0}.</p><p class="joke">${esc(pick(BREAKS)[1])}</p>
       <button class="big" id="arc-end">${st.test ? "Выйти в Штаб" : `В бой! Волна ${Math.floor(R.i / WAVE) + 1} →`}</button></div>`);
     $("#arc-end").onclick = () => { ov(""); stop(); const cb = st.done; st = null; cb(); }; }
-  const addScore = (v, X, Y, col) => { st.score = Math.max(0, st.score + v); $("#arc-sc").textContent = st.score; st.fx.push({txt:(v > 0 ? "+" : "") + v, x:X, y:Y, life:1, col}); };
+  const addScore = (v, X, Y, col) => { st.score = Math.max(0, st.score + v); if (v < 0) { st.left = Math.max(0, st.left - 3); st.fx.push({txt:"−3 сек", x:X, y:Y + 40 * A.d, life:1.2, col:"#FF5A5A"}); } $("#arc-sc").textContent = st.score; st.fx.push({txt:(v > 0 ? "+" : "") + v, x:X, y:Y, life:1, col}); };
   function burst(X, Y, col, k = 26){ const d = A.d; for (let i = 0; i < k; i++) { const a = Math.random() * Math.PI * 2, s = (60 + Math.random() * 260) * d; st.fx.push({p:1, x:X, y:Y, vx:Math.cos(a) * s, vy:Math.sin(a) * s, life:.5 + Math.random() * .5, col:Math.random() < .5 ? col : "#fff", r:(1.5 + Math.random() * 2.5) * d}); } }
   function pillW(x, txt, size){ x.font = FONT(size); return x.measureText(txt).width + size * 1.2; }
   function pill(x, txt, cx, cy, size, fill, stroke){ const w = pillW(x, txt, size), h = size * 1.75; GFX.rc(x, cx - w / 2, cy - h / 2, w, h, h / 2, fill, stroke, 2 * A.d);
