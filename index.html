@@ -450,6 +450,14 @@ kbd{display:none}
 .pw-hide .dbad{animation:hid 4s forwards}
 .pw-spin .opt{animation:spn 1.6s ease-in-out infinite}@keyframes spn{25%{transform:rotate(-14deg)}75%{transform:rotate(14deg)}}
 
+/* v12 облако и мини-игры */
+#cloud-dlg{position:fixed;inset:0;background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center;z-index:99}
+#cloud-dlg[hidden]{display:none}
+.cloud-card{background:#0E1A2E;border:1px solid #3BD4FF;padding:20px;max-width:420px;width:90%}
+#cl-code{font-size:32px;letter-spacing:12px;width:160px;text-align:center}
+#b-cloud{margin-right:12px}
+.arcl{display:grid;gap:8px;margin:8px 0}.arci{display:flex;justify-content:space-between;align-items:center;gap:10px}
+
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 
@@ -2239,10 +2247,10 @@ const EXT_T = {build:taskBuild, choose:taskChoose, fix:taskFix, time:taskTime};
 /* ---------- между волнами: аркада ---------- */
 function pause(){
   if (R.waveWrong === 0) R.sniper = true; R.waveWrong = 0; R.paused = true;
-  if (!S.cfg.arcade) { const b = pick(BREAKS);
+  if (!S.cfg.arcade || ["catch","rocks","tir","feed","mole","gum"].every(k => (S.cfg.arcOff || []).includes(k))) { const b = pick(BREAKS);
     $("#play").innerHTML = `<div class="breakscr"><div class="ttype">⏸ Время на паузе</div><div class="em">${b[0]}</div><h2>Волна ${R.i / WAVE} отбита!</h2><p>${esc(b[1])}</p><button class="big" id="b-cont">Готов, в бой!</button></div>`;
     $("#b-cont").onclick = () => { R.paused = false; task(); }; return; }
-  const K = ["catch","rocks","tir","feed","mole","gum"], last = S.arcLast; let kd = pick(K.filter(k => k !== last)); S.arcLast = kd; save();
+  const K = ["catch","rocks","tir","feed","mole","gum"].filter(k => !(S.cfg.arcOff || []).includes(k)), last = S.arcLast; let kd = pick(K.length > 1 ? K.filter(k => k !== last) : K); S.arcLast = kd; save();
   ARC.run(R.m.n, kd, () => { R.paused = false; show("v-play"); task(); });
 }
 
@@ -2863,5 +2871,63 @@ spdBtn();
 { const h = HS(); M.forEach(m => { if ((S.m[m.n]?.best || 0) >= 1 && !h.tro[m.n]) h.tro[m.n] = Date.now(); }); }
 save();
 home();
+
+/* ---------- v12: облачное сохранение по коду (GitHub) + мини-игры в Штабе ---------- */
+const CLOUD = (() => {
+  const API = "https://api.github.com/repos/punic09-hue/kosmobaza/contents/saves/", TK = "kosmo-gh-token";
+  const tok = () => { try { return localStorage.getItem(TK) || ""; } catch(e) { return ""; } };
+  const b64 = s => btoa(unescape(encodeURIComponent(s)));
+  const get = (code, auth) => fetch(API + code + ".json?t=" + Date.now(), {cache:"no-store", headers:Object.assign({Accept:"application/vnd.github+json"}, auth && tok() ? {Authorization:"Bearer " + tok()} : {})});
+  let timer = null, st = "";
+  async function newCode(){ for (let k = 0; k < 8; k++) { const c = String(1000 + Math.floor(Math.random() * 9000)); const r = await get(c, true); if (r.status === 404) return c; } throw new Error("нет свободного кода"); }
+  async function push(){
+    if (!tok()) { st = "нет ключа GitHub на этом устройстве"; return false; }
+    try {
+      if (!S.cloud) { S.cloud = await newCode(); localStorage.setItem(KEY, JSON.stringify(S)); }
+      const r = await get(S.cloud, true), sha = r.ok ? (await r.json()).sha : undefined;
+      const body = {message:"save " + S.cloud, content:b64(JSON.stringify(Object.assign({}, S, {savedAt:Date.now()}))), sha};
+      const p = await fetch(API + S.cloud + ".json", {method:"PUT", headers:{Authorization:"Bearer " + tok(), Accept:"application/vnd.github+json"}, body:JSON.stringify(body)});
+      st = p.ok ? "сохранено в облако " + new Date().toLocaleTimeString("ru-RU", {hour:"2-digit", minute:"2-digit"}) : "ошибка облака " + p.status; return p.ok;
+    } catch(err) { st = "нет связи с облаком"; return false; }
+  }
+  function soon(){ if (!tok()) return; clearTimeout(timer); timer = setTimeout(push, 4000); }
+  async function load(code){
+    const r = await fetch(API + code + ".json?t=" + Date.now(), {cache:"no-store", headers:{Accept:"application/vnd.github.raw+json"}});
+    if (r.status === 404) throw new Error("Сохранения с кодом " + code + " нет");
+    if (!r.ok) throw new Error("Облако не отвечает (" + r.status + ")");
+    const d = await r.json(); if (!d || !d.m) throw new Error("Файл сохранения повреждён");
+    try { localStorage.setItem(KEY + "-backup-" + Date.now(), JSON.stringify(S)); } catch(e) {}
+    d.cloud = code; delete d.savedAt; localStorage.setItem(KEY, JSON.stringify(d)); location.reload();
+  }
+  return {push, soon, load, tok, TK, status:() => st};
+})();
+{ const _save = save; save = function(){ _save(); CLOUD.soon(); }; }
+function cloudDlg(){
+  let o = $("#cloud-dlg"); if (!o) { o = document.createElement("div"); o.id = "cloud-dlg"; document.body.appendChild(o); }
+  o.innerHTML = `<div class="cloud-card cut"><h2>☁ Загрузить прогресс</h2><p>Введи 4-значный код сохранения. Он есть в Штабе на том устройстве, где ты играл.</p>
+   <input id="cl-code" type="text" inputmode="numeric" maxlength="4" placeholder="0000"><p class="joke" id="cl-msg">${S.cloud ? "Код этого устройства: " + S.cloud : ""}</p>
+   <div class="row"><button class="big" id="cl-go">Загрузить</button><button class="say" id="cl-x">Отмена</button></div></div>`;
+  o.hidden = false; $("#cl-x").onclick = () => o.hidden = true;
+  $("#cl-go").onclick = async () => { const c = $("#cl-code").value.trim(); if (!/^\d{4}$/.test(c)) { $("#cl-msg").textContent = "Нужно 4 цифры."; return; }
+    if (!$("#cl-go").dataset.ok) { $("#cl-go").dataset.ok = 1; $("#cl-go").textContent = "Точно? Текущий прогресс здесь заменится"; return; }
+    $("#cl-msg").textContent = "Загружаю…"; try { await CLOUD.load(c); } catch(err) { $("#cl-msg").textContent = err.message; } };
+}
+{ const p = $("#b-parent"); if (p) { const b = document.createElement("button"); b.className = "link"; b.id = "b-cloud"; b.textContent = "☁ Загрузить прогресс по коду"; b.onclick = cloudDlg; p.before(b); } }
+{ const _parent = parent; parent = function(){ _parent.apply(this, arguments);
+  const AK = ["catch","rocks","tir","feed","mole","gum"], off = S.cfg.arcOff || [];
+  const box = document.createElement("div"); box.innerHTML = `
+   <h3>Мини-игры</h3>
+   <p>Галочка: игра выпадает между волнами. Кнопка «Играть» запускает её сразу, для проверки (звёзды и деньги не начисляются).</p>
+   <div class="arcl">${AK.map(k => `<div class="arci"><label><input type="checkbox" data-arc="${k}" ${off.includes(k) ? "" : "checked"}> ${esc(ARC_NAMES[k])}</label><button class="say" data-play="${k}">▶ Играть</button></div>`).join("")}</div>
+   <h3>Облачное сохранение</h3>
+   <p>Код сохранения этого устройства: <b class="cl-code">${S.cloud || "ещё не создан"}</b>. На другом устройстве нажмите внизу главного экрана «☁ Загрузить прогресс по коду» и введите его. Файл хранится в открытом репозитории GitHub kosmobaza.</p>
+   <div class="cfg"><label for="i-gh">Ключ GitHub (нужен, чтобы это устройство сохраняло в облако)</label><input id="i-gh" type="password" placeholder="github_pat_…" value="${CLOUD.tok() ? "••••••••" : ""}"></div>
+   <div class="row"><button class="say" id="b-gh">Сохранить ключ и выгрузить сейчас</button><span class="joke" id="gh-msg">${esc(CLOUD.status())}</span></div>`;
+  const P = $("#parent"), anchor = P.querySelector("#b-reset")?.closest(".row"); anchor ? anchor.before(box) : P.appendChild(box);
+  box.querySelectorAll("[data-arc]").forEach(c => c.onchange = () => { const k = c.dataset.arc; S.cfg.arcOff = (S.cfg.arcOff || []).filter(x => x !== k); if (!c.checked) S.cfg.arcOff.push(k); save(); });
+  box.querySelectorAll("[data-play]").forEach(b => b.onclick = () => { const g = S.gems, d = JSON.stringify(S.dq || null); ARC.run(1 + Math.floor(Math.random() * 9), b.dataset.play, () => { S.gems = g; if (d !== "null") S.dq = JSON.parse(d); save(); parent(); }); });
+  $("#b-gh").onclick = async () => { const v = $("#i-gh").value.trim(); if (v && !v.startsWith("•")) localStorage.setItem(CLOUD.TK, v); $("#gh-msg").textContent = "Выгружаю…"; const ok = await CLOUD.push(); $("#gh-msg").textContent = CLOUD.status(); if (ok) box.querySelector(".cl-code").textContent = S.cloud; };
+}; }
+const ARC_NAMES = {catch:"🧲 Ловец слов", rocks:"☄️ Метеоритный дождь", tir:"🎯 Тир на скорость", feed:"🍕 Покорми монстра", mole:"🔨 Бонк пришельцев", gum:"🫧 Жвачка"};
 
 </script>
