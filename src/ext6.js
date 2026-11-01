@@ -947,15 +947,23 @@ var ARC_NAMES = {catch:"🧲 Ловец слов", rocks:"☄️ Метеори�
 const MOSS = (() => {
   const SEC = 120, LBL = ["Единицы", "Десятки", "Сотни", "Тысячи"], rnd = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
   const dg = (n, i) => Math.floor(n / 10 ** i) % 10, len = n => String(n).length;
-  const SVG = `<svg viewBox="0 0 120 210" class="mm-svg"><g stroke="#111" stroke-width="3" stroke-linejoin="round">
-   <path d="M60 196 L50 172 Q60 168 70 172 Z" fill="#8FA08C"/>
-   <ellipse cx="60" cy="160" rx="22" ry="14" fill="#A9B8A3"/><ellipse cx="60" cy="140" rx="26" ry="15" fill="#B7C5B0"/>
-   <ellipse cx="60" cy="118" rx="27" ry="15" fill="#A9B8A3"/>
-   <path d="M34 116 q-10 -2 -12 8 M86 116 q10 -2 12 8 M38 132 q-9 2 -9 11 M82 132 q9 2 9 11" fill="none"/>
-   <ellipse cx="60" cy="74" rx="30" ry="30" fill="#C9D4C2"/>
-   <path class="mm-hair" d="M14 62 L8 40 L22 44 L20 22 L36 32 L42 10 L54 26 L64 6 L72 26 L86 12 L88 32 L104 24 L100 44 L114 46 L104 62 Q100 50 92 54 L88 62 L80 54 Q72 48 66 56 L58 48 L48 56 Q40 48 32 56 L28 64 Q22 56 14 62 Z" fill="#3C9A3C"/>
-   <ellipse class="mm-eye" cx="47" cy="78" rx="7" ry="11" fill="#0A0A0A"/><ellipse class="mm-eye" cx="73" cy="78" rx="7" ry="11" fill="#0A0A0A"/>
-   <path d="M42 104 q18 10 36 0" fill="#7FA07A"/></g></svg>`;
+  const SVG = `<svg viewBox="0 0 150 270" class="mm-svg"><defs><radialGradient id="mmF" cx=".45" cy=".35" r=".7"><stop offset="0" stop-color="#C4D0BE"/><stop offset="1" stop-color="#7E9079"/></radialGradient><radialGradient id="mmB" cx=".4" cy=".35" r=".75"><stop offset="0" stop-color="#C8D2C4"/><stop offset="1" stop-color="#76866F"/></radialGradient><linearGradient id="mmH" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4FB34A"/><stop offset="1" stop-color="#2E7F2E"/></linearGradient></defs>
+   <g stroke="#0E0E0E" stroke-width="4" stroke-linejoin="round" stroke-linecap="round">
+   <path d="M96 222 Q122 236 112 252 Q104 262 92 266 Q100 254 96 246 Q88 236 72 236 Z" fill="url(#mmB)"/>
+   <ellipse cx="78" cy="222" rx="24" ry="17" fill="url(#mmB)"/>
+   <ellipse cx="72" cy="192" rx="30" ry="21" fill="url(#mmB)"/>
+   <path d="M50 186 q22 12 46 0" fill="none" stroke-width="3"/>
+   <ellipse cx="72" cy="160" rx="27" ry="16" fill="url(#mmB)"/>
+   <path d="M60 150 q-16 -2 -20 8 q6 -2 10 2 M84 150 q14 0 18 10 q-6 -3 -10 1" fill="#9AAA94" stroke-width="3"/>
+   <path d="M58 168 q-12 0 -14 10 q5 -3 9 0 M86 166 q12 2 12 12 q-5 -3 -9 -1" fill="#9AAA94" stroke-width="3"/>
+   <ellipse cx="72" cy="138" rx="17" ry="9" fill="url(#mmB)"/>
+   <path class="mm-hair" d="M30 132 Q14 128 10 112 L22 112 Q8 98 6 80 L20 86 Q8 66 12 46 L26 58 Q24 34 36 18 L44 36 Q50 14 66 6 L68 26 Q80 6 98 8 L92 26 Q110 14 126 22 L112 36 Q132 38 140 54 L122 58 Q140 72 138 92 L124 86 Q132 104 124 120 L114 108 Q116 124 106 134 Q104 110 98 98 Q86 72 66 74 Q46 76 40 100 Q36 116 30 132 Z" fill="url(#mmH)"/>
+   <path d="M30 60 q8 -8 18 -6 M100 40 q10 2 16 10 M60 30 q8 -6 18 -4 M116 74 q6 6 6 14 M22 96 q2 -10 8 -14" fill="none" stroke="#1E5E1E" stroke-width="3"/>
+   <path d="M42 96 Q48 72 72 72 Q98 72 104 96 Q104 120 86 132 Q74 140 60 132 Q42 120 42 96 Z" fill="url(#mmF)"/>
+   <ellipse class="mm-eye" cx="61" cy="101" rx="7" ry="12" transform="rotate(-22 61 101)" fill="#050505" stroke="none"/>
+   <ellipse class="mm-eye" cx="86" cy="101" rx="7" ry="12" transform="rotate(22 86 101)" fill="#050505" stroke="none"/>
+   <path d="M44 100 L36 92 L46 94 Z M102 100 L110 92 L100 94 Z" fill="url(#mmH)" stroke-width="3"/>
+   </g></svg>`;
   /* построение примера: шаги {q, ans, go()} + отрисовка */
   function mkAdd(){ const a = rnd(1200, 8999), b = rnd(150, 9999 - a > 999 ? 999 : 9999 - a); return colOp("+", a, b, (da, db, c, i) => ({q:`${LBL[i]}: ${da}${i < len(b) ? ` + ${db}` : ""}${c ? ` + ${c} в уме` : ""} = ?`, ans:da + db + c}), (v) => [v % 10, Math.floor(v / 10)]); }
   function mkSub(){ let a, b, r; do { r = rnd(110, 899); b = rnd(110, 899); a = r + b; } while (a > 999 || [1].some(i => dg(a, i) === 0)); return colOp("−", a, b, (da, db, c, i) => { const x = da - c;
