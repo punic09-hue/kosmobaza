@@ -486,29 +486,6 @@ kbd{display:none}
 #mm-quit{position:fixed;top:12px;right:12px;z-index:50}
 #v-moss .arc-ov{position:absolute;inset:0;z-index:5}
 @media (max-width:760px){.mm-stage{grid-template-columns:1fr}.mm-svg{max-width:120px}.mm-ex{font-size:34px;min-height:0}}
-/* A: логово во мхах (Silksong) */
-.mt-a .mm-stage{background:radial-gradient(ellipse at 30% 20%,#1F4A2A,#071510 70%);border:1px solid #3C9A3C}
-.mt-a .mm-ex{background:linear-gradient(#2A2F2A,#171B17);color:#C9FFB8;box-shadow:inset 0 0 24px #000,0 0 0 3px #4A564A;text-shadow:0 0 10px #6CFF6C;--hot:#FFE36A;--c2:#FF9C6A;--c3:#8AE8FF}
-.mt-a #mm-q{background:rgba(10,30,15,.85);color:#E4FFE0;border:1px solid #3C9A3C}
-.mt-a .mm-in{background:#0B1A0F;color:#FFE36A;border:2px solid #3C9A3C}
-.mt-a .mm-pad button{background:linear-gradient(#3B4A3B,#1F2A1F);color:#DFFFD6;border-color:#4C7A4C}
-/* B: тетрадь в клетку */
-.mt-b .mm-stage{background:#F4F1E6;border:6px solid #3C9A3C;border-image:repeating-linear-gradient(45deg,#2E7A2E 0 10px,#5ABF5A 10px 20px) 6}
-.mt-b .mm-ex{background-color:#FFFDF6;background-image:linear-gradient(#BFD4F2 1px,transparent 1px),linear-gradient(90deg,#BFD4F2 1px,transparent 1px);background-size:1.05em 1.15em;color:#1E3FA8;font-family:"Andika",cursive;box-shadow:2px 3px 0 #C9C2AA;--hot:#E53935;--c2:#C62828;--c3:#2E7D32}
-.mt-b .mm-row i{border-radius:0}
-.mt-b #mm-q{background:#FFF8D6;color:#3A2A00;border:2px dashed #C9A400}
-.mt-b .mm-in{background:#fff;color:#1E3FA8;border:2px solid #1E3FA8;font-family:"Andika"}
-.mt-b .mm-pad button{background:#fff;color:#1E3FA8;border-color:#9FB5E0;box-shadow:0 3px 0 #9FB5E0}
-.mt-b .mm-say{background:#3C9A3C;color:#fff}
-.mt-b .ttype,.mt-b .arc-hud{color:inherit}
-/* C: заражённый терминал Космобазы */
-.mt-c .mm-stage{background:linear-gradient(135deg,#071426,#0B2235);border:1px solid #39D0FF;box-shadow:inset 0 0 40px rgba(57,208,255,.15)}
-.mt-c .mm-stage::before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(57,208,255,.06) 0 2px,transparent 2px 4px);pointer-events:none}
-.mt-c .mm-ex{background:rgba(4,12,24,.9);color:#7FE8FF;border:2px solid #39D0FF;text-shadow:0 0 12px #39D0FF;--hot:#7CFF3A;--c2:#FF8A3D;--c3:#7CFF3A}
-.mt-c #mm-q{background:rgba(57,208,255,.12);color:#DFF7FF;border:1px solid #39D0FF}
-.mt-c .mm-in{background:#020A14;color:#7CFF3A;border:2px solid #7CFF3A;text-shadow:0 0 10px #7CFF3A}
-.mt-c .mm-pad button{background:linear-gradient(#123049,#0A1C2E);color:#BFF2FF;border-color:#2A7FA8}
-.mt-c .mm-svg{filter:drop-shadow(0 0 14px #7CFF3A) hue-rotate(-10deg)}
 /* v13 компоновка под планшет 1280×800 */
 .mm-stage{min-height:0;grid-template-columns:minmax(140px,.8fr) 2.2fr}
 .mm-board{display:grid;grid-template-columns:auto auto;grid-template-areas:"ex pad" "q pad" "in pad";gap:10px 18px;align-items:start;justify-content:center}
@@ -3059,10 +3036,10 @@ function cloudDlg(){
 { const _parent = parent; parent = function(){ _parent.apply(this, arguments);
   const AK = ["catch","rocks","tir","feed","mole","gum","moss"], off = S.cfg.arcOff || [];
   const box = document.createElement("div"); box.innerHTML = `
-   <h3>Мини-игры</h3>
-   <p>Галочка: игра выпадает между волнами. Кнопка «Играть» запускает её сразу, для проверки (звёзды и деньги не начисляются).</p>
-   <div class="cfg"><label for="i-every">Как часто мини-игры</label><select id="i-every">${[[1,"после каждой волны"],[2,"через раз"],[3,"каждый 3-й перерыв"],[5,"каждый 5-й перерыв (редко)"]].map(([v, t]) => `<option value="${v}" ${(S.cfg.arcEvery || 1) === v ? "selected" : ""}>${t}</option>`).join("")}</select>
-    <label for="i-mt">Оформление «Матери мхов»</label><select id="i-mt">${[["d","D. Оружие из чисел"],["a","A. Логово во мхах"],["b","B. Тетрадь в клетку"],["c","C. Заражённый терминал"]].map(([v, t]) => `<option value="${v}" ${(S.cfg.mossTheme || "d") === v ? "selected" : ""}>${t}</option>`).join("")}</select></div>
+   <h3>Какие игры запускаются</h3>
+   <label class="sv-ck"><input type="checkbox" id="i-arcon" ${S.cfg.arcade !== false ? "checked" : ""}> <b>Мини-игры между волнами включены</b></label>
+   <p>Галочка у игры: она может выпасть Артёму. Снятая галочка: игра не запускается совсем. Кнопка «Играть» запускает её сразу, для проверки (звёзды и деньги не начисляются).</p>
+   <div class="cfg"><label for="i-every">Как часто мини-игры</label><select id="i-every">${[[1,"после каждой волны"],[2,"через раз"],[3,"каждый 3-й перерыв"],[5,"каждый 5-й перерыв (редко)"]].map(([v, t]) => `<option value="${v}" ${(S.cfg.arcEvery || 1) === v ? "selected" : ""}>${t}</option>`).join("")}</select></div>
    <p class="joke">Перерыв бывает между волнами боя. В остальные перерывы будет короткая передышка без игры.</p>
    <div class="arcl">${AK.map(k => `<div class="arci"><label><input type="checkbox" data-arc="${k}" ${off.includes(k) ? "" : "checked"}> ${esc(ARC_NAMES[k])}</label><button class="say" data-play="${k}">▶ Играть</button></div>`).join("")}</div>
    <h3>Облачное сохранение</h3>
@@ -3070,7 +3047,8 @@ function cloudDlg(){
    <div class="cfg"><label for="i-gh">Ключ GitHub (нужен, чтобы это устройство сохраняло в облако)</label><input id="i-gh" type="password" placeholder="github_pat_…" value="${CLOUD.tok() ? "••••••••" : ""}"></div>
    <div class="row"><button class="say" id="b-gh">Сохранить ключ и выгрузить сейчас</button><span class="joke" id="gh-msg">${esc(CLOUD.status())}</span></div>`;
   const P = $("#parent"), anchor = P.querySelector("#b-reset")?.closest(".row"); anchor ? anchor.before(box) : P.appendChild(box);
-  box.querySelector("#i-every").onchange = e => { S.cfg.arcEvery = +e.target.value; save(); }; box.querySelector("#i-mt").onchange = e => { S.cfg.mossTheme = e.target.value; save(); };
+  box.querySelector("#i-every").onchange = e => { S.cfg.arcEvery = +e.target.value; save(); };
+  box.querySelector("#i-arcon").onchange = e => { S.cfg.arcade = e.target.checked; const o = $("#i-arc"); if (o) o.checked = e.target.checked; save(); };
   box.querySelectorAll("[data-arc]").forEach(c => c.onchange = () => { const k = c.dataset.arc; S.cfg.arcOff = (S.cfg.arcOff || []).filter(x => x !== k); if (!c.checked) S.cfg.arcOff.push(k); save(); });
   box.querySelectorAll("[data-play]").forEach(b => b.onclick = () => { if (b.dataset.play === "moss") { const g = S.gems; return MOSS.run(() => { S.gems = g; save(); parent(); }, true); } const g = S.gems, d = JSON.stringify(S.dq || null); ARC.run(1 + Math.floor(Math.random() * 9), b.dataset.play, () => { $("#arc-quit")?.remove(); S.gems = g; if (d !== "null") S.dq = JSON.parse(d); save(); parent(); }); ARC.st.test = true;
     const q = document.createElement("button"); q.id = "arc-quit"; q.className = "say"; q.textContent = "✕ Выйти из теста"; q.onclick = () => ARC.quit(); $("#v-arc").appendChild(q); });
@@ -3096,7 +3074,6 @@ function cloudDlg(){
     ed.innerHTML = `<div class="sv-grid"><label>Имя<input type="text" data-t="label" value="${esc(c.label || "")}" placeholder="Артём / тест"></label>
       ${num("rate5", "₽ за 5★", c.rate5)}${num("rate34", "₽ за 3–4★", c.rate34)}${num("cap", "Оплачиваемых боёв в день", c.cap)}${num("tasks", "Заданий в бою", c.tasks)}${num("minutes", "Минут на 5★", c.minutes)}${num("chest", "₽ из сундука дня", c.chest)}
       <label>Мини-игры<select data-s="arcEvery">${[[1,"после каждой волны"],[2,"через раз"],[3,"каждый 3-й"],[5,"каждый 5-й"]].map(([v, t]) => `<option value="${v}" ${(c.arcEvery || 1) == v ? "selected" : ""}>${t}</option>`).join("")}</select></label>
-      <label>Матерь мхов<select data-s="mossTheme">${[["d","D. Оружие"],["a","A. Логово"],["b","B. Тетрадь"],["c","C. Терминал"]].map(([v, t]) => `<option value="${v}" ${(c.mossTheme || "d") === v ? "selected" : ""}>${t}</option>`).join("")}</select></label>
       <label class="sv-ck"><input type="checkbox" data-b="arcade" ${c.arcade !== false ? "checked" : ""}> Мини-игры включены</label><label class="sv-ck"><input type="checkbox" data-b="scenes" ${c.scenes !== false ? "checked" : ""}> Сценки перед заданием</label></div>
       <div class="sv-arc">${AK.map(k => `<label class="sv-ck"><input type="checkbox" data-a="${k}" ${off.includes(k) ? "" : "checked"}> ${esc(ARC_NAMES[k])}</label>`).join("")}</div>
       <div class="row"><button class="big" data-go>Сохранить для кода ${x.code}</button><span class="joke" data-msg></span></div>`;
@@ -3167,7 +3144,7 @@ const MOSS = (() => {
   /* v14 вариант D «Оружие из чисел»: пушка заряжается верными цифрами, залп по боссу, частицы */
   const GUN = (() => {
     let cv, cx, P = [], cells = [], fr = 0, W = 0, H = 0, sh = 0;
-    const on = () => (S.cfg.mossTheme || "d") === "d";
+    const on = () => true;
     const html = () => `<div class="gun" id="gun"><div class="gun-back"></div><div class="gun-body"><div class="gun-cells">${[0,1,2,3].map(i => `<b class="gc" id="gc${i}"></b>`).join("")}</div><div class="gun-meter"><i id="gun-m"></i></div></div><div class="gun-barrel"><i></i><i></i><i></i></div><div class="gun-muzzle" id="gun-mz"></div><div class="gun-grip"></div></div>`;
     const stage = () => $("#v-moss .mm-stage");
     function rel(el){ const a = stage().getBoundingClientRect(), b = el.getBoundingClientRect(); return {x:b.left - a.left + b.width / 2, y:b.top - a.top + b.height / 2, w:b.width, h:b.height}; }
@@ -3228,7 +3205,7 @@ const MOSS = (() => {
     return {on, html, init, reset, charge, misfire, fire, stop, wreck};
   })();
   let st = null, raf = 0;
-  function view(){ let v = $("#v-moss"); if (!v) { v = document.createElement("section"); v.className = "view"; v.id = "v-moss"; v.hidden = true; $("#v-arc").after(v); } v.className = "view mt-" + (S.cfg.mossTheme || "d"); return v; }
+  function view(){ let v = $("#v-moss"); if (!v) { v = document.createElement("section"); v.className = "view"; v.id = "v-moss"; v.hidden = true; $("#v-arc").after(v); } v.className = "view mt-d"; return v; }
   function run(done, test){
     const v = view(); st = {done, test, left:SEC + 5 * gearLv("boots"), score:0, hp:3, solved:0, phase:"intro", wrong:0, ops:shuf(["+", "−", "×", ":"])};
     v.innerHTML = `<div class="mm-top"><div class="ttype">🌿 Матерь мхов</div><div class="arc-hud"><span>Очки <b id="mm-sc">0</b></span><span>Рекорд <b>${(S.arcBest || {}).moss || 0}</b></span></div></div>

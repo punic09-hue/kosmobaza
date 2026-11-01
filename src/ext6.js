@@ -939,10 +939,10 @@ function cloudDlg(){
 { const _parent = parent; parent = function(){ _parent.apply(this, arguments);
   const AK = ["catch","rocks","tir","feed","mole","gum","moss"], off = S.cfg.arcOff || [];
   const box = document.createElement("div"); box.innerHTML = `
-   <h3>Мини-игры</h3>
-   <p>Галочка: игра выпадает между волнами. Кнопка «Играть» запускает её сразу, для проверки (звёзды и деньги не начисляются).</p>
-   <div class="cfg"><label for="i-every">Как часто мини-игры</label><select id="i-every">${[[1,"после каждой волны"],[2,"через раз"],[3,"каждый 3-й перерыв"],[5,"каждый 5-й перерыв (редко)"]].map(([v, t]) => `<option value="${v}" ${(S.cfg.arcEvery || 1) === v ? "selected" : ""}>${t}</option>`).join("")}</select>
-    <label for="i-mt">Оформление «Матери мхов»</label><select id="i-mt">${[["d","D. Оружие из чисел"],["a","A. Логово во мхах"],["b","B. Тетрадь в клетку"],["c","C. Заражённый терминал"]].map(([v, t]) => `<option value="${v}" ${(S.cfg.mossTheme || "d") === v ? "selected" : ""}>${t}</option>`).join("")}</select></div>
+   <h3>Какие игры запускаются</h3>
+   <label class="sv-ck"><input type="checkbox" id="i-arcon" ${S.cfg.arcade !== false ? "checked" : ""}> <b>Мини-игры между волнами включены</b></label>
+   <p>Галочка у игры: она может выпасть Артёму. Снятая галочка: игра не запускается совсем. Кнопка «Играть» запускает её сразу, для проверки (звёзды и деньги не начисляются).</p>
+   <div class="cfg"><label for="i-every">Как часто мини-игры</label><select id="i-every">${[[1,"после каждой волны"],[2,"через раз"],[3,"каждый 3-й перерыв"],[5,"каждый 5-й перерыв (редко)"]].map(([v, t]) => `<option value="${v}" ${(S.cfg.arcEvery || 1) === v ? "selected" : ""}>${t}</option>`).join("")}</select></div>
    <p class="joke">Перерыв бывает между волнами боя. В остальные перерывы будет короткая передышка без игры.</p>
    <div class="arcl">${AK.map(k => `<div class="arci"><label><input type="checkbox" data-arc="${k}" ${off.includes(k) ? "" : "checked"}> ${esc(ARC_NAMES[k])}</label><button class="say" data-play="${k}">▶ Играть</button></div>`).join("")}</div>
    <h3>Облачное сохранение</h3>
@@ -950,7 +950,8 @@ function cloudDlg(){
    <div class="cfg"><label for="i-gh">Ключ GitHub (нужен, чтобы это устройство сохраняло в облако)</label><input id="i-gh" type="password" placeholder="github_pat_…" value="${CLOUD.tok() ? "••••••••" : ""}"></div>
    <div class="row"><button class="say" id="b-gh">Сохранить ключ и выгрузить сейчас</button><span class="joke" id="gh-msg">${esc(CLOUD.status())}</span></div>`;
   const P = $("#parent"), anchor = P.querySelector("#b-reset")?.closest(".row"); anchor ? anchor.before(box) : P.appendChild(box);
-  box.querySelector("#i-every").onchange = e => { S.cfg.arcEvery = +e.target.value; save(); }; box.querySelector("#i-mt").onchange = e => { S.cfg.mossTheme = e.target.value; save(); };
+  box.querySelector("#i-every").onchange = e => { S.cfg.arcEvery = +e.target.value; save(); };
+  box.querySelector("#i-arcon").onchange = e => { S.cfg.arcade = e.target.checked; const o = $("#i-arc"); if (o) o.checked = e.target.checked; save(); };
   box.querySelectorAll("[data-arc]").forEach(c => c.onchange = () => { const k = c.dataset.arc; S.cfg.arcOff = (S.cfg.arcOff || []).filter(x => x !== k); if (!c.checked) S.cfg.arcOff.push(k); save(); });
   box.querySelectorAll("[data-play]").forEach(b => b.onclick = () => { if (b.dataset.play === "moss") { const g = S.gems; return MOSS.run(() => { S.gems = g; save(); parent(); }, true); } const g = S.gems, d = JSON.stringify(S.dq || null); ARC.run(1 + Math.floor(Math.random() * 9), b.dataset.play, () => { $("#arc-quit")?.remove(); S.gems = g; if (d !== "null") S.dq = JSON.parse(d); save(); parent(); }); ARC.st.test = true;
     const q = document.createElement("button"); q.id = "arc-quit"; q.className = "say"; q.textContent = "✕ Выйти из теста"; q.onclick = () => ARC.quit(); $("#v-arc").appendChild(q); });
@@ -976,7 +977,6 @@ function cloudDlg(){
     ed.innerHTML = `<div class="sv-grid"><label>Имя<input type="text" data-t="label" value="${esc(c.label || "")}" placeholder="Артём / тест"></label>
       ${num("rate5", "₽ за 5★", c.rate5)}${num("rate34", "₽ за 3–4★", c.rate34)}${num("cap", "Оплачиваемых боёв в день", c.cap)}${num("tasks", "Заданий в бою", c.tasks)}${num("minutes", "Минут на 5★", c.minutes)}${num("chest", "₽ из сундука дня", c.chest)}
       <label>Мини-игры<select data-s="arcEvery">${[[1,"после каждой волны"],[2,"через раз"],[3,"каждый 3-й"],[5,"каждый 5-й"]].map(([v, t]) => `<option value="${v}" ${(c.arcEvery || 1) == v ? "selected" : ""}>${t}</option>`).join("")}</select></label>
-      <label>Матерь мхов<select data-s="mossTheme">${[["d","D. Оружие"],["a","A. Логово"],["b","B. Тетрадь"],["c","C. Терминал"]].map(([v, t]) => `<option value="${v}" ${(c.mossTheme || "d") === v ? "selected" : ""}>${t}</option>`).join("")}</select></label>
       <label class="sv-ck"><input type="checkbox" data-b="arcade" ${c.arcade !== false ? "checked" : ""}> Мини-игры включены</label><label class="sv-ck"><input type="checkbox" data-b="scenes" ${c.scenes !== false ? "checked" : ""}> Сценки перед заданием</label></div>
       <div class="sv-arc">${AK.map(k => `<label class="sv-ck"><input type="checkbox" data-a="${k}" ${off.includes(k) ? "" : "checked"}> ${esc(ARC_NAMES[k])}</label>`).join("")}</div>
       <div class="row"><button class="big" data-go>Сохранить для кода ${x.code}</button><span class="joke" data-msg></span></div>`;
@@ -1047,7 +1047,7 @@ const MOSS = (() => {
   /* v14 вариант D «Оружие из чисел»: пушка заряжается верными цифрами, залп по боссу, частицы */
   const GUN = (() => {
     let cv, cx, P = [], cells = [], fr = 0, W = 0, H = 0, sh = 0;
-    const on = () => (S.cfg.mossTheme || "d") === "d";
+    const on = () => true;
     const html = () => `<div class="gun" id="gun"><div class="gun-back"></div><div class="gun-body"><div class="gun-cells">${[0,1,2,3].map(i => `<b class="gc" id="gc${i}"></b>`).join("")}</div><div class="gun-meter"><i id="gun-m"></i></div></div><div class="gun-barrel"><i></i><i></i><i></i></div><div class="gun-muzzle" id="gun-mz"></div><div class="gun-grip"></div></div>`;
     const stage = () => $("#v-moss .mm-stage");
     function rel(el){ const a = stage().getBoundingClientRect(), b = el.getBoundingClientRect(); return {x:b.left - a.left + b.width / 2, y:b.top - a.top + b.height / 2, w:b.width, h:b.height}; }
@@ -1108,7 +1108,7 @@ const MOSS = (() => {
     return {on, html, init, reset, charge, misfire, fire, stop, wreck};
   })();
   let st = null, raf = 0;
-  function view(){ let v = $("#v-moss"); if (!v) { v = document.createElement("section"); v.className = "view"; v.id = "v-moss"; v.hidden = true; $("#v-arc").after(v); } v.className = "view mt-" + (S.cfg.mossTheme || "d"); return v; }
+  function view(){ let v = $("#v-moss"); if (!v) { v = document.createElement("section"); v.className = "view"; v.id = "v-moss"; v.hidden = true; $("#v-arc").after(v); } v.className = "view mt-d"; return v; }
   function run(done, test){
     const v = view(); st = {done, test, left:SEC + 5 * gearLv("boots"), score:0, hp:3, solved:0, phase:"intro", wrong:0, ops:shuf(["+", "−", "×", ":"])};
     v.innerHTML = `<div class="mm-top"><div class="ttype">🌿 Матерь мхов</div><div class="arc-hud"><span>Очки <b id="mm-sc">0</b></span><span>Рекорд <b>${(S.arcBest || {}).moss || 0}</b></span></div></div>

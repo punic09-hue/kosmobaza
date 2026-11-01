@@ -227,29 +227,6 @@
 #mm-quit{position:fixed;top:12px;right:12px;z-index:50}
 #v-moss .arc-ov{position:absolute;inset:0;z-index:5}
 @media (max-width:760px){.mm-stage{grid-template-columns:1fr}.mm-svg{max-width:120px}.mm-ex{font-size:34px;min-height:0}}
-/* A: логово во мхах (Silksong) */
-.mt-a .mm-stage{background:radial-gradient(ellipse at 30% 20%,#1F4A2A,#071510 70%);border:1px solid #3C9A3C}
-.mt-a .mm-ex{background:linear-gradient(#2A2F2A,#171B17);color:#C9FFB8;box-shadow:inset 0 0 24px #000,0 0 0 3px #4A564A;text-shadow:0 0 10px #6CFF6C;--hot:#FFE36A;--c2:#FF9C6A;--c3:#8AE8FF}
-.mt-a #mm-q{background:rgba(10,30,15,.85);color:#E4FFE0;border:1px solid #3C9A3C}
-.mt-a .mm-in{background:#0B1A0F;color:#FFE36A;border:2px solid #3C9A3C}
-.mt-a .mm-pad button{background:linear-gradient(#3B4A3B,#1F2A1F);color:#DFFFD6;border-color:#4C7A4C}
-/* B: тетрадь в клетку */
-.mt-b .mm-stage{background:#F4F1E6;border:6px solid #3C9A3C;border-image:repeating-linear-gradient(45deg,#2E7A2E 0 10px,#5ABF5A 10px 20px) 6}
-.mt-b .mm-ex{background-color:#FFFDF6;background-image:linear-gradient(#BFD4F2 1px,transparent 1px),linear-gradient(90deg,#BFD4F2 1px,transparent 1px);background-size:1.05em 1.15em;color:#1E3FA8;font-family:"Andika",cursive;box-shadow:2px 3px 0 #C9C2AA;--hot:#E53935;--c2:#C62828;--c3:#2E7D32}
-.mt-b .mm-row i{border-radius:0}
-.mt-b #mm-q{background:#FFF8D6;color:#3A2A00;border:2px dashed #C9A400}
-.mt-b .mm-in{background:#fff;color:#1E3FA8;border:2px solid #1E3FA8;font-family:"Andika"}
-.mt-b .mm-pad button{background:#fff;color:#1E3FA8;border-color:#9FB5E0;box-shadow:0 3px 0 #9FB5E0}
-.mt-b .mm-say{background:#3C9A3C;color:#fff}
-.mt-b .ttype,.mt-b .arc-hud{color:inherit}
-/* C: заражённый терминал Космобазы */
-.mt-c .mm-stage{background:linear-gradient(135deg,#071426,#0B2235);border:1px solid #39D0FF;box-shadow:inset 0 0 40px rgba(57,208,255,.15)}
-.mt-c .mm-stage::before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(57,208,255,.06) 0 2px,transparent 2px 4px);pointer-events:none}
-.mt-c .mm-ex{background:rgba(4,12,24,.9);color:#7FE8FF;border:2px solid #39D0FF;text-shadow:0 0 12px #39D0FF;--hot:#7CFF3A;--c2:#FF8A3D;--c3:#7CFF3A}
-.mt-c #mm-q{background:rgba(57,208,255,.12);color:#DFF7FF;border:1px solid #39D0FF}
-.mt-c .mm-in{background:#020A14;color:#7CFF3A;border:2px solid #7CFF3A;text-shadow:0 0 10px #7CFF3A}
-.mt-c .mm-pad button{background:linear-gradient(#123049,#0A1C2E);color:#BFF2FF;border-color:#2A7FA8}
-.mt-c .mm-svg{filter:drop-shadow(0 0 14px #7CFF3A) hue-rotate(-10deg)}
 /* v13 компоновка под планшет 1280×800 */
 .mm-stage{min-height:0;grid-template-columns:minmax(140px,.8fr) 2.2fr}
 .mm-board{display:grid;grid-template-columns:auto auto;grid-template-areas:"ex pad" "q pad" "in pad";gap:10px 18px;align-items:start;justify-content:center}
