@@ -950,7 +950,7 @@ const MOSS = (() => {
   const SVG = `<svg viewBox="0 0 150 270" class="mm-svg"><defs><radialGradient id="mmF" cx=".45" cy=".35" r=".7"><stop offset="0" stop-color="#C4D0BE"/><stop offset="1" stop-color="#7E9079"/></radialGradient><radialGradient id="mmB" cx=".4" cy=".35" r=".75"><stop offset="0" stop-color="#C8D2C4"/><stop offset="1" stop-color="#76866F"/></radialGradient><linearGradient id="mmH" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4FB34A"/><stop offset="1" stop-color="#2E7F2E"/></linearGradient></defs>
    <g stroke="#0E0E0E" stroke-width="4" stroke-linejoin="round" stroke-linecap="round">
    <g class="mm-body">
-   <path d="M56 160 Q40 150 22 156 Q30 166 50 166 Z M88 160 Q104 150 122 156 Q114 166 94 166 Z" fill="#DDE8E0" fill-opacity=".75" stroke-width="3"/>
+   <path class="mm-wing" d="M56 160 Q40 150 22 156 Q30 166 50 166 Z M88 160 Q104 150 122 156 Q114 166 94 166 Z" fill="#DDE8E0" fill-opacity=".75" stroke-width="3"/>
    <path d="M72 196 Q104 196 108 222 Q108 246 72 268 Q36 246 36 222 Q40 196 72 196 Z" fill="url(#mmB)"/>
    <path d="M40 214 Q72 226 104 214 M38 232 Q72 244 106 232 M48 250 Q72 260 96 250" fill="none" stroke-width="3"/>
    <path d="M40 214 Q72 226 104 214 L106 223 Q72 236 38 223 Z M38 232 Q72 244 106 232 L102 241 Q72 252 42 241 Z" fill="#4F5E4B" stroke="none"/>
@@ -1043,8 +1043,22 @@ const MOSS = (() => {
         const x = b.x + (Math.random() - .5) * 50, y = b.y - b.h * (.3 - i * .2);
         burst(x, y, 22, "leaf", i ? "#2E7F2E" : "#4FB34A", 7); burst(x, y, 30, "spark", "#FFB03A", 8); burst(x, y, 12, "spark", "#FF4A1A", 5); burst(x, y, 10, "chunk", "#9AAA94", 6); burst(x, y, 8, "smoke", "rgba(60,60,60,.6)", 1.5);
         ring(x, y, i ? "#FFB03A" : "#FFE36A", 5 + i * 2); dmgTxt(x + 30, y - 20, "−" + (30 + Math.floor(Math.random() * 25)), 34 + i * 6); flash(); sh = 26; }, 180 + d)); }
+    function flyOff(els, power){ const sv = $("#mm-boss .mm-svg"); if (!sv) return; const a = stage().getBoundingClientRect(), r = sv.getBoundingClientRect();
+      els.forEach(el => { const o = document.createElementNS("http://www.w3.org/2000/svg", "svg"); o.setAttribute("viewBox", sv.getAttribute("viewBox")); o.setAttribute("class", "mm-fly");
+        o.style.cssText = `left:${r.left - a.left}px;top:${r.top - a.top}px;width:${r.width}px;height:${r.height}px`;
+        const g = document.createElementNS("http://www.w3.org/2000/svg", "g"); g.setAttribute("stroke", "#0E0E0E"); g.setAttribute("stroke-width", "4"); g.setAttribute("stroke-linejoin", "round"); g.appendChild(el.cloneNode(true)); o.appendChild(g); stage().appendChild(o);
+        const bb = el.getBBox(), ox = bb.x + bb.width / 2, dir = ox < 72 ? -1 : 1, dx = dir * (80 + Math.random() * 160) * power, up = -(60 + Math.random() * 120) * power, rot = dir * (180 + Math.random() * 360);
+        o.style.transformOrigin = `${ox / 150 * 100}% ${(bb.y + bb.height / 2) / 270 * 100}%`;
+        o.animate([{transform:"translate(0,0) rotate(0)", opacity:1}, {transform:`translate(${dx * .6}px,${up}px) rotate(${rot * .5}deg)`, opacity:1, offset:.4}, {transform:`translate(${dx}px,${up + 420}px) rotate(${rot}deg)`, opacity:0}], {duration:1500, easing:"cubic-bezier(.2,.6,.4,1)"}).onfinish = () => o.remove(); }); }
+    function wreck(d){ const sv = $("#mm-boss .mm-svg"); if (!sv) return; const b = rel(sv);
+      if (d === 0) { sv.classList.remove("gone"); sv.classList.add("reborn"); setTimeout(() => sv.classList.remove("reborn"), 900); return; }
+      if (d === 1) { flyOff([...sv.querySelectorAll(".mm-jaw,.mm-wing")], 1); burst(b.x, b.y + 10, 16, "chunk", "#9AAA94", 6); }
+      if (d === 2) { flyOff([sv.querySelector(".mm-hair")], .8); burst(b.x, b.y - b.h * .3, 40, "leaf", "#4FB34A", 8); }
+      if (d === 3) { flyOff([...sv.querySelector("g[stroke]").children].filter(e => !/mm-cr/.test(e.getAttribute("class") || "")), 1.6); sv.classList.add("gone");
+        burst(b.x, b.y, 60, "spark", "#FFB03A", 11); burst(b.x, b.y, 30, "spark", "#FF4A1A", 8); burst(b.x, b.y, 25, "smoke", "rgba(50,50,50,.7)", 3); burst(b.x, b.y, 40, "leaf", "#4FB34A", 9);
+        ring(b.x, b.y, "#FFE36A", 9); setTimeout(() => ring(b.x, b.y, "#FF4A1A", 13), 150); dmgTxt(b.x, b.y - 40, "💥 ВЗРЫВ!", 48); sh = 40; sfx("boom"); setTimeout(() => sfx("boom"), 200); } }
     addEventListener("resize", size);
-    return {on, html, init, reset, charge, misfire, fire, stop};
+    return {on, html, init, reset, charge, misfire, fire, stop, wreck};
   })();
   let st = null, raf = 0;
   function view(){ let v = $("#v-moss"); if (!v) { v = document.createElement("section"); v.className = "view"; v.id = "v-moss"; v.hidden = true; $("#v-arc").after(v); } v.className = "view mt-" + (S.cfg.mossTheme || "d"); return v; }
@@ -1062,7 +1076,9 @@ const MOSS = (() => {
     $("#mm-go").onclick = () => { $("#mm-ov").hidden = true; st.phase = "play"; next(); tick(); };
     v.querySelectorAll("[data-k]").forEach(b => b.onclick = () => key(b.dataset.k));
     hp(); if (GUN.on()) GUN.init(); }
-  function hp(){ $("#mm-boss").dataset.d = 3 - st.hp; $("#mm-hp").innerHTML = "💚".repeat(st.hp) + "🖤".repeat(3 - st.hp); }
+  function hp(){ const bs = $("#mm-boss"), d = 3 - st.hp, was = +(bs.dataset.d || 0);
+    if (GUN.on() && d > was) setTimeout(() => { if (!st) return; bs.dataset.d = d; GUN.wreck(d); }, 440); else { bs.dataset.d = d; if (GUN.on() && d < was) GUN.wreck(0); }
+    $("#mm-hp").innerHTML = "💚".repeat(st.hp) + "🖤".repeat(3 - st.hp); }
   function say(t){ const s = $("#mm-say"); s.textContent = t; s.classList.remove("on"); void s.offsetWidth; s.classList.add("on"); }
   function next(){ if (GUN.on()) GUN.reset(); const op = st.ops[st.solved % 4]; st.E = MAKERS[op](); st.k = 0; stepIn(); }
   function stepIn(){ const E = st.E; if (st.k >= E.steps.length) { E.finish(); draw(-1); return solved(); }
@@ -1078,7 +1094,7 @@ const MOSS = (() => {
   function growMoss(){ const m = $("#mm-moss"); m.style.setProperty("--g", Math.min(1, st.wrong * .12)); }
   function solved(){ if (GUN.on()) GUN.fire(); st.solved++; st.score += 5; st.hp = Math.max(0, st.hp - 1); hp(); upd(); say(pick(["Ай! Мой мох!", "Ты меня обжёг!", "Не может быть!"])); sfx("boom");
     st.wrong = Math.max(0, st.wrong - 3); growMoss();
-    if (st.hp === 0) { st.score += 10; say("Я ещё вернусь..."); st.hp = 3; setTimeout(hp, 900); }
+    if (st.hp === 0) { st.score += 10; say("Я ещё вернусь..."); st.hp = 3; setTimeout(() => st && hp(), GUN.on() ? 2200 : 900); }
     $("#mm-q").textContent = "Пример решён! +5"; st.phase = "pause"; setTimeout(() => { if (st && st.phase === "pause") { st.phase = "play"; next(); } }, 1400); }
   function upd(){ $("#mm-sc").textContent = st.score; }
   function tick(){ let last = performance.now(); cancelAnimationFrame(raf);
