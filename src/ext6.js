@@ -253,11 +253,12 @@ const EXT_T = {build:taskBuild, choose:taskChoose, fix:taskFix, time:taskTime};
 /* ---------- между волнами: аркада ---------- */
 function pause(){
   if (R.waveWrong === 0) R.sniper = true; R.waveWrong = 0; R.paused = true;
-  if (!S.cfg.arcade || ["catch","rocks","tir","feed","mole","gum"].every(k => (S.cfg.arcOff || []).includes(k))) { const b = pick(BREAKS);
+  S.arcN = (S.arcN || 0) + 1;
+  if (!S.cfg.arcade || (S.arcN % (S.cfg.arcEvery || 1)) !== 0 || ["catch","rocks","tir","feed","mole","gum","moss"].every(k => (S.cfg.arcOff || []).includes(k))) { const b = pick(BREAKS);
     $("#play").innerHTML = `<div class="breakscr"><div class="ttype">⏸ Время на паузе</div><div class="em">${b[0]}</div><h2>Волна ${R.i / WAVE} отбита!</h2><p>${esc(b[1])}</p><button class="big" id="b-cont">Готов, в бой!</button></div>`;
     $("#b-cont").onclick = () => { R.paused = false; task(); }; return; }
-  const K = ["catch","rocks","tir","feed","mole","gum"].filter(k => !(S.cfg.arcOff || []).includes(k)), last = S.arcLast; let kd = pick(K.length > 1 ? K.filter(k => k !== last) : K); S.arcLast = kd; save();
-  ARC.run(R.m.n, kd, () => { R.paused = false; show("v-play"); task(); });
+  const K = ["catch","rocks","tir","feed","mole","gum","moss"].filter(k => !(S.cfg.arcOff || []).includes(k)), last = S.arcLast; let kd = pick(K.length > 1 ? K.filter(k => k !== last) : K); S.arcLast = kd; save();
+  const back = () => { R.paused = false; show("v-play"); task(); }; if (kd === "moss") return MOSS.run(back); ARC.run(R.m.n, kd, back);
 }
 
 /* ---------- короткий кусок фразы с пропуском (для аркад и блица) ---------- */
@@ -921,19 +922,113 @@ function cloudDlg(){
 }
 { const p = $("#b-parent"); if (p) { const b = document.createElement("button"); b.className = "link"; b.id = "b-cloud"; b.textContent = "☁ Загрузить прогресс по коду"; b.onclick = cloudDlg; p.before(b); } }
 { const _parent = parent; parent = function(){ _parent.apply(this, arguments);
-  const AK = ["catch","rocks","tir","feed","mole","gum"], off = S.cfg.arcOff || [];
+  const AK = ["catch","rocks","tir","feed","mole","gum","moss"], off = S.cfg.arcOff || [];
   const box = document.createElement("div"); box.innerHTML = `
    <h3>Мини-игры</h3>
    <p>Галочка: игра выпадает между волнами. Кнопка «Играть» запускает её сразу, для проверки (звёзды и деньги не начисляются).</p>
+   <div class="cfg"><label for="i-every">Как часто мини-игры</label><select id="i-every">${[[1,"после каждой волны"],[2,"через раз"],[3,"каждый 3-й перерыв"],[5,"каждый 5-й перерыв (редко)"]].map(([v, t]) => `<option value="${v}" ${(S.cfg.arcEvery || 1) === v ? "selected" : ""}>${t}</option>`).join("")}</select>
+    <label for="i-mt">Оформление «Матери мхов»</label><select id="i-mt">${[["a","A. Логово во мхах"],["b","B. Тетрадь в клетку"],["c","C. Заражённый терминал"]].map(([v, t]) => `<option value="${v}" ${(S.cfg.mossTheme || "a") === v ? "selected" : ""}>${t}</option>`).join("")}</select></div>
+   <p class="joke">Перерыв бывает между волнами боя. В остальные перерывы будет короткая передышка без игры.</p>
    <div class="arcl">${AK.map(k => `<div class="arci"><label><input type="checkbox" data-arc="${k}" ${off.includes(k) ? "" : "checked"}> ${esc(ARC_NAMES[k])}</label><button class="say" data-play="${k}">▶ Играть</button></div>`).join("")}</div>
    <h3>Облачное сохранение</h3>
    <p>Код сохранения этого устройства: <b class="cl-code">${S.cloud || "ещё не создан"}</b>. На другом устройстве нажмите внизу главного экрана «☁ Загрузить прогресс по коду» и введите его. Файл хранится в открытом репозитории GitHub kosmobaza.</p>
    <div class="cfg"><label for="i-gh">Ключ GitHub (нужен, чтобы это устройство сохраняло в облако)</label><input id="i-gh" type="password" placeholder="github_pat_…" value="${CLOUD.tok() ? "••••••••" : ""}"></div>
    <div class="row"><button class="say" id="b-gh">Сохранить ключ и выгрузить сейчас</button><span class="joke" id="gh-msg">${esc(CLOUD.status())}</span></div>`;
   const P = $("#parent"), anchor = P.querySelector("#b-reset")?.closest(".row"); anchor ? anchor.before(box) : P.appendChild(box);
+  box.querySelector("#i-every").onchange = e => { S.cfg.arcEvery = +e.target.value; save(); }; box.querySelector("#i-mt").onchange = e => { S.cfg.mossTheme = e.target.value; save(); };
   box.querySelectorAll("[data-arc]").forEach(c => c.onchange = () => { const k = c.dataset.arc; S.cfg.arcOff = (S.cfg.arcOff || []).filter(x => x !== k); if (!c.checked) S.cfg.arcOff.push(k); save(); });
-  box.querySelectorAll("[data-play]").forEach(b => b.onclick = () => { const g = S.gems, d = JSON.stringify(S.dq || null); ARC.run(1 + Math.floor(Math.random() * 9), b.dataset.play, () => { $("#arc-quit")?.remove(); S.gems = g; if (d !== "null") S.dq = JSON.parse(d); save(); parent(); }); ARC.st.test = true;
+  box.querySelectorAll("[data-play]").forEach(b => b.onclick = () => { if (b.dataset.play === "moss") { const g = S.gems; return MOSS.run(() => { S.gems = g; save(); parent(); }, true); } const g = S.gems, d = JSON.stringify(S.dq || null); ARC.run(1 + Math.floor(Math.random() * 9), b.dataset.play, () => { $("#arc-quit")?.remove(); S.gems = g; if (d !== "null") S.dq = JSON.parse(d); save(); parent(); }); ARC.st.test = true;
     const q = document.createElement("button"); q.id = "arc-quit"; q.className = "say"; q.textContent = "✕ Выйти из теста"; q.onclick = () => ARC.quit(); $("#v-arc").appendChild(q); });
   $("#b-gh").onclick = async () => { const v = $("#i-gh").value.trim(); if (v && !v.startsWith("•")) localStorage.setItem(CLOUD.TK, v); $("#gh-msg").textContent = "Выгружаю…"; const ok = await CLOUD.push(); $("#gh-msg").textContent = CLOUD.status(); if (ok) box.querySelector(".cl-code").textContent = S.cloud; };
 }; }
-const ARC_NAMES = {catch:"🧲 Ловец слов", rocks:"☄️ Метеоритный дождь", tir:"🎯 Тир на скорость", feed:"🍕 Покорми монстра", mole:"🔨 Бонк пришельцев", gum:"🫧 Жвачка"};
+var ARC_NAMES = {catch:"🧲 Ловец слов", rocks:"☄️ Метеоритный дождь", tir:"🎯 Тир на скорость", feed:"🍕 Покорми монстра", mole:"🔨 Бонк пришельцев", gum:"🫧 Жвачка"};
+
+/* ---------- v13: мини-игра «Матерь мхов» — примеры столбиком ---------- */
+const MOSS = (() => {
+  const SEC = 120, LBL = ["Единицы", "Десятки", "Сотни", "Тысячи"], rnd = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
+  const dg = (n, i) => Math.floor(n / 10 ** i) % 10, len = n => String(n).length;
+  const SVG = `<svg viewBox="0 0 120 210" class="mm-svg"><g stroke="#111" stroke-width="3" stroke-linejoin="round">
+   <path d="M60 196 L50 172 Q60 168 70 172 Z" fill="#8FA08C"/>
+   <ellipse cx="60" cy="160" rx="22" ry="14" fill="#A9B8A3"/><ellipse cx="60" cy="140" rx="26" ry="15" fill="#B7C5B0"/>
+   <ellipse cx="60" cy="118" rx="27" ry="15" fill="#A9B8A3"/>
+   <path d="M34 116 q-10 -2 -12 8 M86 116 q10 -2 12 8 M38 132 q-9 2 -9 11 M82 132 q9 2 9 11" fill="none"/>
+   <ellipse cx="60" cy="74" rx="30" ry="30" fill="#C9D4C2"/>
+   <path class="mm-hair" d="M14 62 L8 40 L22 44 L20 22 L36 32 L42 10 L54 26 L64 6 L72 26 L86 12 L88 32 L104 24 L100 44 L114 46 L104 62 Q100 50 92 54 L88 62 L80 54 Q72 48 66 56 L58 48 L48 56 Q40 48 32 56 L28 64 Q22 56 14 62 Z" fill="#3C9A3C"/>
+   <ellipse class="mm-eye" cx="47" cy="78" rx="7" ry="11" fill="#0A0A0A"/><ellipse class="mm-eye" cx="73" cy="78" rx="7" ry="11" fill="#0A0A0A"/>
+   <path d="M42 104 q18 10 36 0" fill="#7FA07A"/></g></svg>`;
+  /* построение примера: шаги {q, ans, go()} + отрисовка */
+  function mkAdd(){ const a = rnd(1200, 8999), b = rnd(150, 9999 - a > 999 ? 999 : 9999 - a); return colOp("+", a, b, (da, db, c, i) => ({q:`${LBL[i]}: ${da}${i < len(b) ? ` + ${db}` : ""}${c ? ` + ${c} в уме` : ""} = ?`, ans:da + db + c}), (v) => [v % 10, Math.floor(v / 10)]); }
+  function mkSub(){ let a, b, r; do { r = rnd(110, 899); b = rnd(110, 899); a = r + b; } while (a > 999 || [1].some(i => dg(a, i) === 0)); return colOp("−", a, b, (da, db, c, i) => { const x = da - c;
+      return x < db ? {q:`${LBL[i]}: ${x} меньше ${db}. Занимаем десяток: ${x + 10} − ${db} = ?`, ans:x + 10 - db, br:1} : {q:`${LBL[i]}: ${x} − ${db} = ?`, ans:x - db, br:0}; }, (v, st) => [v, st.br]); }
+  function mkMul(){ const a = rnd(23, 489), m = rnd(3, 9); return colOp("×", a, m, (da, db, c, i) => ({q:`${LBL[i]}: ${da} × ${m}${c ? ` + ${c} в уме` : ""} = ?`, ans:da * m + c}), v => [v % 10, Math.floor(v / 10)], true); }
+  function colOp(sign, a, b, ask, split, mul){
+    const n = len(a), W = Math.max(len(a), len(b), String(sign === "+" ? a + b : sign === "×" ? a * b : a - b).length) + 1;
+    const E = {sign, a, b, W, res:[], carry:[], col:0, done:false, steps:[]};
+    let c = 0;
+    for (let i = 0; i < n; i++) { const da = dg(a, i), db = mul ? 0 : (i < len(b) ? dg(b, i) : 0);
+      E.steps.push(() => { const s = ask(da, mul ? b : db, c, i); s.col = i; s.go = v => { const [w, cc] = split(v, s); E.res[i] = w; c = cc; E.carry[i + 1] = cc ? (sign === "−" ? "•" : cc) : ""; }; return s; }); }
+    E.finish = () => { if (c && sign !== "−") E.res[n] = c; let k = E.res.length - 1; while (k > 0 && !E.res[k]) { E.res[k] = undefined; k--; } E.carry = E.carry.map((x, i) => i >= n ? "" : x); };
+    E.render = cur => { const row = (cells, cls = "") => `<div class="mm-row ${cls}">${cells.map((t, j) => `<i class="${j === W - 1 - cur && cur >= 0 ? "hot" : ""}">${t ?? ""}</i>`).join("")}</div>`;
+      const pad = (num) => { const s = String(num); return Array(W - s.length).fill("").concat(s.split("")); };
+      const car = Array(W).fill("").map((_, j) => E.carry[W - 1 - j] ?? "");
+      const sg = pad(b); sg[0] = sign;
+      return row(car, "carry") + row(pad(a)) + row(sg) + `<div class="mm-line"></div>` + row(Array(W).fill("").map((_, j) => E.res[W - 1 - j] ?? "")); };
+    return E; }
+  function mkDiv(){ const m = rnd(2, 9); let q; do { q = rnd(21, Math.floor(999 / m)); } while (q * m < 100); const a = q * m, s = String(a);
+    const E = {sign:":", a, b:m, steps:[], lines:[], quo:"", done:false}; let pos = 0, cur = 0;
+    while (pos < s.length && cur < m) cur = cur * 10 + +s[pos++];
+    const step = () => { const cc = cur, end = pos; return {q:`Сколько раз ${m} помещается в ${cc}?`, ans:Math.floor(cc / m), col:-1, go:v => { E.quo += v; const p = v * m, r = cc - p;
+      E.lines.push({t:"−" + p, end, cls:"sub"}, {t:String(pos < s.length ? r * 10 + +s[pos] : r), end:end + (pos < s.length ? 1 : 0), cls:"rem"});
+      if (pos < s.length) { cur = r * 10 + +s[pos++]; E.steps.push(step); } }}; };
+    E.steps.push(step); E.finish = () => {};
+    E.render = () => { const W = s.length + 1, ln = (t, end, cls) => `<div class="mm-row ${cls}">${Array(W).fill("").map((_, j) => `<i>${t[j - (end - t.length + 1)] ?? ""}</i>`).join("")}</div>`;
+      return `<div class="mm-div"><div class="mm-l">${ln(s, s.length, "")}${E.lines.map(l => ln(l.t, l.end, l.cls)).join("")}</div><div class="mm-r"><div class="mm-dv">${m}</div><div class="mm-q">${E.quo || "&nbsp;"}</div></div></div>`; };
+    return E; }
+  const MAKERS = {"+":mkAdd, "−":mkSub, "×":mkMul, ":":mkDiv};
+  let st = null, raf = 0;
+  function view(){ let v = $("#v-moss"); if (!v) { v = document.createElement("section"); v.className = "view"; v.id = "v-moss"; v.hidden = true; $("#v-arc").after(v); } v.className = "view mt-" + (S.cfg.mossTheme || "a"); return v; }
+  function run(done, test){
+    const v = view(); st = {done, test, left:SEC + 5 * gearLv("boots"), score:0, hp:3, solved:0, phase:"intro", wrong:0, ops:shuf(["+", "−", "×", ":"])};
+    v.innerHTML = `<div class="mm-top"><div class="ttype">🌿 Матерь мхов</div><div class="arc-hud"><span>Очки <b id="mm-sc">0</b></span><span>Рекорд <b>${(S.arcBest || {}).moss || 0}</b></span></div></div>
+     <div class="arcbar"><i id="mm-bar"></i></div>
+     <div class="mm-stage cut"><div class="mm-moss" id="mm-moss"></div><div class="mm-boss" id="mm-boss">${SVG}<div class="mm-hp" id="mm-hp"></div><div class="mm-say" id="mm-say"></div></div>
+      <div class="mm-board"><div class="mm-ex" id="mm-ex"></div><div class="mm-q" id="mm-q"></div><div class="mm-in" id="mm-in"></div>
+       <div class="mm-pad">${[1,2,3,4,5,6,7,8,9,"⌫",0,"OK"].map(k => `<button data-k="${k}">${k}</button>`).join("")}</div></div>
+      <div class="arc-ov" id="mm-ov"></div></div>
+     ${test ? '<button class="say" id="mm-quit">✕ Выйти из теста</button>' : ""}`;
+    show("v-moss"); if (test) $("#mm-quit").onclick = () => end(true);
+    $("#mm-ov").innerHTML = `<div class="arc-card"><div class="eyebrow">Перезарядка · время боя на паузе</div><h2>🌿 Матерь мхов</h2><p>Матерь мхов оплетает базу! Решай примеры столбиком, шаг за шагом. Каждый решённый пример сжигает её мох. Ошибка отнимает 3 секунды.</p><button class="big" id="mm-go">В бой!</button></div>`;
+    $("#mm-go").onclick = () => { $("#mm-ov").hidden = true; st.phase = "play"; next(); tick(); };
+    v.querySelectorAll("[data-k]").forEach(b => b.onclick = () => key(b.dataset.k));
+    hp(); }
+  function hp(){ $("#mm-hp").innerHTML = "💚".repeat(st.hp) + "🖤".repeat(3 - st.hp); }
+  function say(t){ const s = $("#mm-say"); s.textContent = t; s.classList.remove("on"); void s.offsetWidth; s.classList.add("on"); }
+  function next(){ const op = st.ops[st.solved % 4]; st.E = MAKERS[op](); st.k = 0; stepIn(); }
+  function stepIn(){ const E = st.E; if (st.k >= E.steps.length) { E.finish(); draw(-1); return solved(); }
+    st.S = E.steps[st.k](); st.inp = ""; st.miss = 0; draw(st.S.col); $("#mm-q").textContent = st.S.q; $("#mm-in").textContent = "?"; }
+  function draw(col){ $("#mm-ex").innerHTML = st.E.render(col); }
+  function key(k){ if (!st || st.phase !== "play") return; sfx("tick");
+    if (k === "⌫") st.inp = st.inp.slice(0, -1); else if (k === "OK") return check(); else if (st.inp.length < 2) st.inp += k;
+    $("#mm-in").textContent = st.inp || "?"; }
+  function check(){ if (!st.inp) return; const v = +st.inp;
+    if (v === st.S.ans) { sfx("ok"); st.score += 1; st.S.go(v); st.k++; $("#mm-boss").classList.remove("hit"); void $("#mm-boss").offsetWidth; $("#mm-boss").classList.add("hit"); upd(); stepIn(); }
+    else { sfx("bad"); st.left = Math.max(0, st.left - 3); st.miss++; st.wrong++; growMoss(); say(pick(["Хи-хи, мимо!", "Мох растёт!", "Неверно, букашка!", "Ещё разок, малыш!"]));
+      $("#mm-in").innerHTML = `<span class="bad">${st.inp}</span> <small>−3 сек</small>${st.miss >= 2 ? ` <small>Подсказка: ${st.S.ans}</small>` : ""}`; st.inp = ""; } }
+  function growMoss(){ const m = $("#mm-moss"); m.style.setProperty("--g", Math.min(1, st.wrong * .12)); }
+  function solved(){ st.solved++; st.score += 5; st.hp = Math.max(0, st.hp - 1); hp(); upd(); say(pick(["Ай! Мой мох!", "Ты меня обжёг!", "Не может быть!"])); sfx("boom");
+    st.wrong = Math.max(0, st.wrong - 3); growMoss();
+    if (st.hp === 0) { st.score += 10; say("Я ещё вернусь..."); st.hp = 3; setTimeout(hp, 900); }
+    $("#mm-q").textContent = "Пример решён! +5"; st.phase = "pause"; setTimeout(() => { if (st && st.phase === "pause") { st.phase = "play"; next(); } }, 1400); }
+  function upd(){ $("#mm-sc").textContent = st.score; }
+  function tick(){ let last = performance.now(); cancelAnimationFrame(raf);
+    const f = now => { if (!st) return; raf = requestAnimationFrame(f); if (document.hidden || $("#v-moss").hidden) { last = now; return; }
+      if (st.phase === "play" || st.phase === "pause") { st.left -= (now - last) / 1000; $("#mm-bar").style.width = Math.max(0, 100 * st.left / SEC) + "%"; if (st.left <= 0) end(); } last = now; }; raf = requestAnimationFrame(f); }
+  function end(quit){ cancelAnimationFrame(raf); const s = st; if (!s) return; s.phase = "end";
+    if (quit) { st = null; return s.done(); }
+    sfx("win"); S.arcBest = S.arcBest || {}; const rec = s.score > (S.arcBest.moss || 0); if (rec) S.arcBest.moss = s.score; const gm = Math.floor(s.score / 5); S.gems = (S.gems || 0) + gm; save(); dqEvent("arcade", {score:s.score});
+    const o = $("#mm-ov"); o.hidden = false; o.innerHTML = `<div class="arc-card"><div class="eyebrow">Время вышло</div><h2>${s.score} очков${rec && s.score ? " · 🏆 рекорд!" : ""}</h2><p>Решено примеров: ${s.solved}. ${gm ? `+${gm} 💎` : ""}</p><button class="big" id="mm-end">${s.test ? "Выйти в Штаб" : "В бой! →"}</button></div>`;
+    $("#mm-end").onclick = () => { st = null; s.done(); }; }
+  document.addEventListener("keydown", e => { if (!st || $("#v-moss").hidden) return; if (/^[0-9]$/.test(e.key)) key(e.key); else if (e.key === "Backspace") key("⌫"); else if (e.key === "Enter") { if ($("#mm-go") && !$("#mm-ov").hidden) $("#mm-go").click(); else if ($("#mm-end")) $("#mm-end").click(); else key("OK"); } else return; e.preventDefault(); }, true);
+  return {run, get st(){ return st; }};
+})();
+ARC_NAMES.moss = "🌿 Матерь мхов (столбиком)";

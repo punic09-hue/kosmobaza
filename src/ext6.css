@@ -199,3 +199,61 @@
 #b-cloud{margin-right:12px}
 .arcl{display:grid;gap:8px;margin:8px 0}.arci{display:flex;justify-content:space-between;align-items:center;gap:10px}
 #arc-quit{position:fixed;top:12px;right:12px;z-index:50}
+/* v13 Матерь мхов */
+#v-moss{position:relative}
+.mm-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.mm-stage{position:relative;display:grid;grid-template-columns:minmax(150px,1fr) 2fr;gap:16px;padding:16px;min-height:540px;overflow:hidden}
+.mm-boss{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:2}
+.mm-svg{width:100%;max-width:220px;animation:mmf 3s ease-in-out infinite;filter:drop-shadow(0 0 18px rgba(80,200,80,.45))}
+@keyframes mmf{50%{transform:translateY(-10px) rotate(2deg)}}
+.mm-boss.hit .mm-svg{animation:mmh .45s}@keyframes mmh{30%{transform:translateX(14px) rotate(8deg);filter:brightness(2) drop-shadow(0 0 20px #fff)}}
+.mm-hair{animation:mmhair 2s ease-in-out infinite;transform-origin:60px 60px}@keyframes mmhair{50%{transform:scale(1.04,.97)}}
+.mm-hp{font-size:22px;margin-top:6px}
+.mm-say{position:absolute;top:0;left:50%;transform:translateX(-50%);background:#fff;color:#123;border-radius:14px;padding:6px 12px;font-weight:700;opacity:0;white-space:nowrap}
+.mm-say.on{animation:mmsay 1.8s}@keyframes mmsay{10%,80%{opacity:1}}
+.mm-board{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:10px}
+.mm-ex{font:700 44px/1.1 "Exo 2",monospace;padding:12px 20px;border-radius:14px;min-height:240px;display:flex;flex-direction:column;justify-content:center}
+.mm-row{display:flex}.mm-row i{font-style:normal;width:1.05em;height:1.15em;text-align:center;display:inline-block;border-radius:6px}
+.mm-row.carry{font-size:.5em;height:1.2em;align-items:flex-end}.mm-row.carry i{width:2.1em}
+.mm-row i.hot{outline:3px solid currentColor;outline-color:var(--hot)}
+.mm-line{height:4px;border-radius:2px;margin:4px 0;background:currentColor}
+.mm-div{display:flex;gap:6px}.mm-r{border-left:4px solid currentColor;padding-left:8px}.mm-dv{border-bottom:4px solid currentColor;padding:0 8px 2px}.mm-q{padding:2px 8px}
+.mm-row.sub{color:var(--c2)}.mm-row.rem{color:var(--c3)}
+#mm-q{font:700 21px/1.3 var(--body);text-align:center;min-height:2.6em;padding:8px 14px;border-radius:12px;max-width:560px}
+.mm-in{font:800 40px "Exo 2";min-width:120px;text-align:center;padding:2px 16px;border-radius:12px}
+.mm-in .bad{color:#FF5A5A;text-decoration:line-through}.mm-in small{font-size:16px;color:#FFB0B0}
+.mm-pad{display:grid;grid-template-columns:repeat(3,72px);gap:8px}.mm-pad button{height:58px;font:800 26px "Exo 2";border-radius:12px;cursor:pointer;border:2px solid transparent}
+.mm-moss{--g:0;position:absolute;inset:0;pointer-events:none;z-index:1;background:radial-gradient(ellipse at 0 0,rgba(60,160,60,.85),transparent 60%),radial-gradient(ellipse at 100% 100%,rgba(60,160,60,.85),transparent 60%);opacity:var(--g);transition:opacity .6s}
+#mm-quit{position:fixed;top:12px;right:12px;z-index:50}
+#v-moss .arc-ov{position:absolute;inset:0;z-index:5}
+@media (max-width:760px){.mm-stage{grid-template-columns:1fr}.mm-svg{max-width:120px}.mm-ex{font-size:34px;min-height:0}}
+/* A: логово во мхах (Silksong) */
+.mt-a .mm-stage{background:radial-gradient(ellipse at 30% 20%,#1F4A2A,#071510 70%);border:1px solid #3C9A3C}
+.mt-a .mm-ex{background:linear-gradient(#2A2F2A,#171B17);color:#C9FFB8;box-shadow:inset 0 0 24px #000,0 0 0 3px #4A564A;text-shadow:0 0 10px #6CFF6C;--hot:#FFE36A;--c2:#FF9C6A;--c3:#8AE8FF}
+.mt-a #mm-q{background:rgba(10,30,15,.85);color:#E4FFE0;border:1px solid #3C9A3C}
+.mt-a .mm-in{background:#0B1A0F;color:#FFE36A;border:2px solid #3C9A3C}
+.mt-a .mm-pad button{background:linear-gradient(#3B4A3B,#1F2A1F);color:#DFFFD6;border-color:#4C7A4C}
+/* B: тетрадь в клетку */
+.mt-b .mm-stage{background:#F4F1E6;border:6px solid #3C9A3C;border-image:repeating-linear-gradient(45deg,#2E7A2E 0 10px,#5ABF5A 10px 20px) 6}
+.mt-b .mm-ex{background-color:#FFFDF6;background-image:linear-gradient(#BFD4F2 1px,transparent 1px),linear-gradient(90deg,#BFD4F2 1px,transparent 1px);background-size:1.05em 1.15em;color:#1E3FA8;font-family:"Andika",cursive;box-shadow:2px 3px 0 #C9C2AA;--hot:#E53935;--c2:#C62828;--c3:#2E7D32}
+.mt-b .mm-row i{border-radius:0}
+.mt-b #mm-q{background:#FFF8D6;color:#3A2A00;border:2px dashed #C9A400}
+.mt-b .mm-in{background:#fff;color:#1E3FA8;border:2px solid #1E3FA8;font-family:"Andika"}
+.mt-b .mm-pad button{background:#fff;color:#1E3FA8;border-color:#9FB5E0;box-shadow:0 3px 0 #9FB5E0}
+.mt-b .mm-say{background:#3C9A3C;color:#fff}
+.mt-b .ttype,.mt-b .arc-hud{color:inherit}
+/* C: заражённый терминал Космобазы */
+.mt-c .mm-stage{background:linear-gradient(135deg,#071426,#0B2235);border:1px solid #39D0FF;box-shadow:inset 0 0 40px rgba(57,208,255,.15)}
+.mt-c .mm-stage::before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(57,208,255,.06) 0 2px,transparent 2px 4px);pointer-events:none}
+.mt-c .mm-ex{background:rgba(4,12,24,.9);color:#7FE8FF;border:2px solid #39D0FF;text-shadow:0 0 12px #39D0FF;--hot:#7CFF3A;--c2:#FF8A3D;--c3:#7CFF3A}
+.mt-c #mm-q{background:rgba(57,208,255,.12);color:#DFF7FF;border:1px solid #39D0FF}
+.mt-c .mm-in{background:#020A14;color:#7CFF3A;border:2px solid #7CFF3A;text-shadow:0 0 10px #7CFF3A}
+.mt-c .mm-pad button{background:linear-gradient(#123049,#0A1C2E);color:#BFF2FF;border-color:#2A7FA8}
+.mt-c .mm-svg{filter:drop-shadow(0 0 14px #7CFF3A) hue-rotate(-10deg)}
+/* v13 компоновка под планшет 1280×800 */
+.mm-stage{min-height:0;grid-template-columns:minmax(140px,.8fr) 2.2fr}
+.mm-board{display:grid;grid-template-columns:auto auto;grid-template-areas:"ex pad" "q pad" "in pad";gap:10px 18px;align-items:start;justify-content:center}
+.mm-ex{grid-area:ex;font-size:38px;min-height:0;grid-row:1/2}.mm-board #mm-q{grid-area:q}.mm-in{grid-area:in;align-self:end}.mm-pad{grid-area:pad}
+.mm-pad{grid-template-columns:repeat(3,66px)}.mm-pad button{height:54px}
+#mm-quit{top:auto;bottom:12px;right:12px}
+@media (max-width:760px){.mm-board{grid-template-columns:1fr;grid-template-areas:"ex" "q" "in" "pad";justify-items:center}}
