@@ -965,6 +965,8 @@ const MOSS = (() => {
    <ellipse class="mm-eye" cx="61" cy="101" rx="7" ry="12" transform="rotate(-22 61 101)" fill="#050505" stroke="none"/>
    <ellipse class="mm-eye" cx="86" cy="101" rx="7" ry="12" transform="rotate(22 86 101)" fill="#050505" stroke="none"/>
    <path d="M44 100 L36 92 L46 94 Z M102 100 L110 92 L100 94 Z" fill="url(#mmH)" stroke-width="3"/>
+   <g class="mm-cr1" fill="none" stroke="#1a1a1a" stroke-width="2.5"><path d="M60 82 l6 8 -4 6 6 6"/><path d="M98 200 l-10 6 4 8 -8 6"/><path d="M60 168 l8 4 -2 8"/></g>
+   <g class="mm-cr2" fill="none" stroke="#1a1a1a" stroke-width="3"><path d="M88 112 l-6 6 5 4 -7 7"/><path d="M44 214 l14 4 -4 10 12 4"/><path d="M80 160 l-6 8 6 6"/><circle cx="54" cy="236" r="6" fill="#2a1a0a" stroke="none" opacity=".7"/><circle cx="92" cy="178" r="5" fill="#2a1a0a" stroke="none" opacity=".7"/></g>
    </g></svg>`;
   /* построение примера: шаги {q, ans, go()} + отрисовка */
   function mkAdd(){ const a = rnd(1200, 8999), b = rnd(150, 9999 - a > 999 ? 999 : 9999 - a); return colOp("+", a, b, (da, db, c, i) => ({q:`${LBL[i]}: ${da}${i < len(b) ? ` + ${db}` : ""}${c ? ` + ${c} в уме` : ""} = ?`, ans:da + db + c}), (v) => [v % 10, Math.floor(v / 10)]); }
@@ -1010,7 +1012,10 @@ const MOSS = (() => {
       cx.clearRect(0, 0, W, H);
       P = P.filter(p => { p.x += p.vx; p.y += p.vy; p.l--;
         if (p.k === "s") { p.vx += (Math.random() - .5) * .04; if (p.y < -10) Object.assign(p, spore(false)); cx.fillStyle = `rgba(160,255,120,${p.a * (.6 + .4 * Math.sin(p.y / 20))})`; cx.beginPath(); cx.arc(p.x, p.y, p.r, 0, 7); cx.fill(); return true; }
-        p.a = Math.min(1, p.l / 25); if (p.k === "leaf") { p.vy += .12; p.vx *= .98; p.rot += .15; cx.save(); cx.translate(p.x, p.y); cx.rotate(p.rot); cx.globalAlpha = p.a; cx.fillStyle = p.col; cx.strokeStyle = "#0e0e0e"; cx.lineWidth = 2; cx.beginPath(); cx.moveTo(-p.r, 0); cx.quadraticCurveTo(0, -p.r, p.r, 0); cx.quadraticCurveTo(0, p.r * .6, -p.r, 0); cx.fill(); cx.stroke(); cx.restore(); }
+        p.a = Math.min(1, p.l / 25);
+        if (p.k === "smoke") { p.r += .6; p.vy -= .02; cx.globalAlpha = p.a * .5; cx.fillStyle = p.col; cx.beginPath(); cx.arc(p.x, p.y, p.r, 0, 7); cx.fill(); cx.globalAlpha = 1; return p.l > 0; }
+        if (p.k === "chunk") { p.vy += .3; p.rot += .3; cx.save(); cx.translate(p.x, p.y); cx.rotate(p.rot); cx.globalAlpha = p.a; cx.fillStyle = p.col; cx.strokeStyle = "#0e0e0e"; cx.lineWidth = 2; cx.beginPath(); cx.moveTo(-p.r, -p.r * .6); cx.lineTo(p.r, -p.r * .3); cx.lineTo(p.r * .4, p.r); cx.closePath(); cx.fill(); cx.stroke(); cx.restore(); return p.l > 0; }
+        if (p.k === "leaf") { p.vy += .12; p.vx *= .98; p.rot += .15; cx.save(); cx.translate(p.x, p.y); cx.rotate(p.rot); cx.globalAlpha = p.a; cx.fillStyle = p.col; cx.strokeStyle = "#0e0e0e"; cx.lineWidth = 2; cx.beginPath(); cx.moveTo(-p.r, 0); cx.quadraticCurveTo(0, -p.r, p.r, 0); cx.quadraticCurveTo(0, p.r * .6, -p.r, 0); cx.fill(); cx.stroke(); cx.restore(); }
         else { p.vx *= .95; p.vy *= .95; cx.globalAlpha = p.a; cx.fillStyle = p.col; cx.shadowColor = p.col; cx.shadowBlur = 12; cx.beginPath(); cx.arc(p.x, p.y, p.r, 0, 7); cx.fill(); cx.shadowBlur = 0; cx.globalAlpha = 1; }
         return p.l > 0; });
       if (sh > 0) { sh--; stage().style.transform = `translate(${(Math.random() - .5) * sh}px,${(Math.random() - .5) * sh}px)`; if (!sh) stage().style.transform = ""; } }
@@ -1019,7 +1024,14 @@ const MOSS = (() => {
     function paint(){ for (let i = 0; i < 4; i++) { const c = $("#gc" + i); if (!c) continue; const v = cells[i]; c.textContent = v ?? ""; c.className = "gc" + (v !== undefined ? " on" : ""); }
       const m = $("#gun-m"); if (m) m.style.width = Math.min(100, cells.length * 25) + "%"; }
     function charge(v){ if (cells.length >= 4) cells.shift(); cells.push(String(v).slice(-1)); paint(); const c = $("#gc" + (cells.length - 1)); if (c) { c.classList.add("pop"); const p = rel(c); burst(p.x, p.y, 14, "spark", "#7CFF3A", 4); }
-      sfx("clack"); if (cells.length >= 3) $("#gun").classList.add("full"); }
+      sfx("clack"); if (cells.length >= 3) $("#gun").classList.add("full"); bolt(); }
+    function bolt(){ const g = $("#gun"), m = rel($("#gun-mz")), b = rel($("#mm-boss .mm-svg")); g.classList.remove("pew"); void g.offsetWidth; g.classList.add("pew");
+      const t = document.createElement("div"); t.className = "mm-bolt"; stage().appendChild(t); const tx = b.x + (Math.random() - .5) * 40, ty = b.y + (Math.random() - .5) * b.h * .5;
+      t.style.left = m.x + "px"; t.style.top = m.y + "px"; t.animate([{transform:"translate(0,0)"}, {transform:`translate(${tx - m.x}px,${ty - m.y}px)`}], {duration:160, easing:"ease-in"}).onfinish = () => { t.remove(); if (!cv) return; burst(tx, ty, 16, "spark", "#FFB03A", 4); burst(tx, ty, 4, "leaf", "#4FB34A", 3); dmgTxt(tx, ty, "−" + (5 + Math.floor(Math.random() * 6)), 22); flash(); sh = Math.max(sh, 6); }; }
+    function flash(){ const bb = $("#mm-boss"); bb.classList.remove("hit"); void bb.offsetWidth; bb.classList.add("hit"); }
+    function dmgTxt(x, y, t, fs){ const d = document.createElement("div"); d.className = "mm-dmg"; d.textContent = t; d.style.cssText = `left:${x}px;top:${y}px;font-size:${fs}px`; stage().appendChild(d); setTimeout(() => d.remove(), 1100); }
+    function ring(x, y, col, big){ const r = document.createElement("div"); r.className = "mm-ring"; r.style.cssText = `left:${x}px;top:${y}px;border-color:${col}`; stage().appendChild(r);
+      r.animate([{transform:"translate(-50%,-50%) scale(.1)", opacity:1}, {transform:`translate(-50%,-50%) scale(${big})`, opacity:0}], {duration:650, easing:"ease-out"}).onfinish = () => r.remove(); }
     function misfire(){ const g = $("#gun"); g.classList.remove("jam"); void g.offsetWidth; g.classList.add("jam"); const m = rel($("#gun-mz")); burst(m.x, m.y, 18, "spark", "#888", 2.5);
       const b = rel($("#mm-boss .mm-svg")); burst(b.x + 40, b.y, 10, "spark", "#B8FF6A", 5); sh = 14; }
     function fire(){ const g = $("#gun"), m = rel($("#gun-mz")), b = rel($("#mm-boss .mm-svg")), beam = $("#mm-beam");
@@ -1027,7 +1039,10 @@ const MOSS = (() => {
       const dx = b.x - m.x, dy = (b.y - b.h * .25) - m.y, L = Math.hypot(dx, dy);
       Object.assign(beam.style, {left:m.x + "px", top:m.y + "px", width:L + "px", transform:`rotate(${Math.atan2(dy, dx)}rad)`}); beam.classList.remove("on"); void beam.offsetWidth; beam.classList.add("on");
       burst(m.x, m.y, 20, "spark", "#FFE36A", 5);
-      setTimeout(() => { if (!cv) return; burst(b.x, b.y - b.h * .25, 26, "leaf", "#4FB34A", 6); burst(b.x, b.y - b.h * .25, 30, "spark", "#FFB03A", 7); sh = 22; }, 180); }
+      [0, 140, 280].forEach((d, i) => setTimeout(() => { if (!cv) return; beam.classList.remove("on"); void beam.offsetWidth; beam.classList.add("on"); sfx("boom");
+        const x = b.x + (Math.random() - .5) * 50, y = b.y - b.h * (.3 - i * .2);
+        burst(x, y, 22, "leaf", i ? "#2E7F2E" : "#4FB34A", 7); burst(x, y, 30, "spark", "#FFB03A", 8); burst(x, y, 12, "spark", "#FF4A1A", 5); burst(x, y, 10, "chunk", "#9AAA94", 6); burst(x, y, 8, "smoke", "rgba(60,60,60,.6)", 1.5);
+        ring(x, y, i ? "#FFB03A" : "#FFE36A", 5 + i * 2); dmgTxt(x + 30, y - 20, "−" + (30 + Math.floor(Math.random() * 25)), 34 + i * 6); flash(); sh = 26; }, 180 + d)); }
     addEventListener("resize", size);
     return {on, html, init, reset, charge, misfire, fire, stop};
   })();
@@ -1047,7 +1062,7 @@ const MOSS = (() => {
     $("#mm-go").onclick = () => { $("#mm-ov").hidden = true; st.phase = "play"; next(); tick(); };
     v.querySelectorAll("[data-k]").forEach(b => b.onclick = () => key(b.dataset.k));
     hp(); if (GUN.on()) GUN.init(); }
-  function hp(){ $("#mm-hp").innerHTML = "💚".repeat(st.hp) + "🖤".repeat(3 - st.hp); }
+  function hp(){ $("#mm-boss").dataset.d = 3 - st.hp; $("#mm-hp").innerHTML = "💚".repeat(st.hp) + "🖤".repeat(3 - st.hp); }
   function say(t){ const s = $("#mm-say"); s.textContent = t; s.classList.remove("on"); void s.offsetWidth; s.classList.add("on"); }
   function next(){ if (GUN.on()) GUN.reset(); const op = st.ops[st.solved % 4]; st.E = MAKERS[op](); st.k = 0; stepIn(); }
   function stepIn(){ const E = st.E; if (st.k >= E.steps.length) { E.finish(); draw(-1); return solved(); }
