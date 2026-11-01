@@ -317,3 +317,10 @@
 .mm-boss[data-d="1"] .mm-jaw,.mm-boss[data-d="1"] .mm-wing,.mm-boss[data-d="2"] .mm-jaw,.mm-boss[data-d="2"] .mm-wing,.mm-boss[data-d="2"] .mm-hair{visibility:hidden}
 .mm-svg.gone{visibility:hidden}
 .mm-svg.reborn{animation:reborn .9s ease-out}@keyframes reborn{0%{transform:scale(.1) rotate(-30deg);opacity:0;filter:brightness(3)}70%{transform:scale(1.15)}}
+/* v17 все сохранения */
+.sv-list{display:grid;gap:10px;margin:8px 0}.sv-card{padding:12px;border:1px solid rgba(127,232,255,.35);background:rgba(127,232,255,.05)}
+.sv-h{font-size:18px;margin-bottom:4px}.sv-code{opacity:.7;font-size:14px}.sv-me{font-size:12px;background:#3C9A3C;color:#fff;border-radius:8px;padding:2px 8px}
+.sv-s{font-size:14px;opacity:.85;margin-bottom:8px}.sv-ed{margin-top:10px}
+.sv-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:8px}.sv-grid label{display:flex;flex-direction:column;font-size:13px;gap:3px}
+.sv-grid input,.sv-grid select{font-size:16px;padding:6px;border-radius:8px}.sv-grid label.sv-ck,.sv-ck{flex-direction:row;align-items:center;gap:6px;font-size:14px}
+.sv-arc{display:flex;flex-wrap:wrap;gap:6px 14px;margin:10px 0}

@@ -892,12 +892,26 @@ const CLOUD = (() => {
     if (!tok()) { st = "нет ключа GitHub на этом устройстве"; return false; }
     try {
       if (!S.cloud) { S.cloud = await newCode(); localStorage.setItem(KEY, JSON.stringify(S)); }
-      const r = await get(S.cloud, true), sha = r.ok ? (await r.json()).sha : undefined;
+      const r = await get(S.cloud, true), js = r.ok ? await r.json() : null, sha = js ? js.sha : undefined;
+      if (js) mergeCfg(js);
       const body = {message:"save " + S.cloud, content:b64(JSON.stringify(Object.assign({}, S, {savedAt:Date.now()}))), sha};
       const p = await fetch(API + S.cloud + ".json", {method:"PUT", headers:{Authorization:"Bearer " + tok(), Accept:"application/vnd.github+json"}, body:JSON.stringify(body)});
       st = p.ok ? "сохранено в облако " + new Date().toLocaleTimeString("ru-RU", {hour:"2-digit", minute:"2-digit"}) : "ошибка облака " + p.status; return p.ok;
     } catch(err) { st = "нет связи с облаком"; return false; }
   }
+  /* v17: параметры сохранения можно менять из Штаба любого устройства; побеждает более свежая правка (cfgAt) */
+  function dec(js){ try { return JSON.parse(decodeURIComponent(escape(atob(js.content.replace(/\n/g, ""))))); } catch(e) { return null; } }
+  function mergeCfg(js){ const d = dec(js); const mine = JSON.stringify(S.cfg);
+    if (d && d.cfg && (d.cfgAt || 0) > (S.cfgAt || 0)) { S.cfg = Object.assign(S.cfg, d.cfg); S.cfgAt = d.cfgAt; S._cfgSent = JSON.stringify(S.cfg); localStorage.setItem(KEY, JSON.stringify(S)); return true; }
+    if (S._cfgSent !== undefined && S._cfgSent !== mine) S.cfgAt = Date.now(); S._cfgSent = mine; return false; }
+  async function pull(){ if (!S.cloud) return; try { const r = await get(S.cloud, !!tok()); if (r.ok && mergeCfg(await r.json())) toast("⚙ Штаб обновил настройки"); } catch(e) {} }
+  async function list(){ const r = await fetch(API.slice(0, -1) + "?t=" + Date.now(), {cache:"no-store", headers:Object.assign({Accept:"application/vnd.github+json"}, tok() ? {Authorization:"Bearer " + tok()} : {})});
+    if (!r.ok) throw new Error("Облако не отвечает (" + r.status + ")");
+    const files = (await r.json()).filter(f => /^\d{4}\.json$/.test(f.name));
+    return Promise.all(files.map(async f => { const g = await get(f.name.slice(0, 4), !!tok()); const js = g.ok ? await g.json() : null; return {code:f.name.slice(0, 4), sha:js && js.sha, d:js && dec(js)}; })); }
+  async function putOther(code, d, sha){ if (!tok()) throw new Error("Нужен ключ GitHub на этом устройстве");
+    const p = await fetch(API + code + ".json", {method:"PUT", headers:{Authorization:"Bearer " + tok(), Accept:"application/vnd.github+json"}, body:JSON.stringify({message:"Штаб: параметры " + code, content:b64(JSON.stringify(d)), sha})});
+    if (!p.ok) throw new Error("Ошибка записи " + p.status); return (await p.json()).content.sha; }
   function soon(){ if (!tok()) return; clearTimeout(timer); timer = setTimeout(push, 4000); }
   async function load(code){
     const r = await fetch(API + code + ".json?t=" + Date.now(), {cache:"no-store", headers:{Accept:"application/vnd.github.raw+json"}});
@@ -907,9 +921,10 @@ const CLOUD = (() => {
     try { localStorage.setItem(KEY + "-backup-" + Date.now(), JSON.stringify(S)); } catch(e) {}
     d.cloud = code; delete d.savedAt; localStorage.setItem(KEY, JSON.stringify(d)); location.reload();
   }
-  return {push, soon, load, tok, TK, status:() => st};
+  return {push, soon, load, tok, TK, status:() => st, pull, list, putOther};
 })();
 { const _save = save; save = function(){ _save(); CLOUD.soon(); }; }
+setTimeout(() => CLOUD.pull(), 1500); setInterval(() => { if (!document.hidden) CLOUD.pull(); }, 120000); document.addEventListener("visibilitychange", () => { if (!document.hidden) CLOUD.pull(); });
 function cloudDlg(){
   let o = $("#cloud-dlg"); if (!o) { o = document.createElement("div"); o.id = "cloud-dlg"; document.body.appendChild(o); }
   o.innerHTML = `<div class="cloud-card cut"><h2>☁ Загрузить прогресс</h2><p>Введи 4-значный код сохранения. Он есть в Штабе на том устройстве, где ты играл.</p>
@@ -941,6 +956,38 @@ function cloudDlg(){
     const q = document.createElement("button"); q.id = "arc-quit"; q.className = "say"; q.textContent = "✕ Выйти из теста"; q.onclick = () => ARC.quit(); $("#v-arc").appendChild(q); });
   $("#b-gh").onclick = async () => { const v = $("#i-gh").value.trim(); if (v && !v.startsWith("•")) localStorage.setItem(CLOUD.TK, v); $("#gh-msg").textContent = "Выгружаю…"; const ok = await CLOUD.push(); $("#gh-msg").textContent = CLOUD.status(); if (ok) box.querySelector(".cl-code").textContent = S.cloud; };
 }; }
+/* v17 Штаб: все облачные сохранения и параметры каждого */
+{ const _parent = parent; parent = function(){ _parent.apply(this, arguments);
+  const box = document.createElement("div"); box.className = "saves-box";
+  box.innerHTML = `<h3>Все сохранения</h3><p>Все коды из облака. «Настроить» меняет параметры этого сохранения: устройство, где на нём играют, подхватит их при следующем запуске или в течение пары минут. Для записи нужен ключ GitHub на этом устройстве.</p><div id="sv-list" class="joke">Загружаю список…</div>`;
+  const P = $("#parent"), anchor = P.querySelector("#b-reset")?.closest(".row"); anchor ? anchor.before(box) : P.appendChild(box);
+  const AK = ["catch","rocks","tir","feed","mole","gum","moss"];
+  const sum = d => { const ms = Object.values(d.m || {}); return {stars:ms.reduce((a, m) => a + (m.best || 0), 0), done:ms.filter(m => (m.best || 0) >= 3).length, runs:ms.reduce((a, m) => a + (m.runs || 0), 0)}; };
+  const dt = t => t ? new Date(t).toLocaleString("ru-RU", {day:"2-digit", month:"2-digit", hour:"2-digit", minute:"2-digit"}) : "—";
+  let items = [];
+  async function load(){ const L = box.querySelector("#sv-list"); try { items = await CLOUD.list(); } catch(e) { L.textContent = e.message; return; }
+    L.className = "sv-list"; L.innerHTML = items.filter(x => x.d).map((x, i) => { const s = sum(x.d), c = x.d.cfg || {};
+      return `<div class="sv-card cut"><div class="sv-h"><b>${esc(c.label || "Без имени")}</b> <span class="sv-code">код ${x.code}</span>${x.code === S.cloud ? ' <span class="sv-me">это устройство</span>' : ""}</div>
+       <div class="sv-s">⭐ ${s.stars} · секторов ≥3★: ${s.done}/9 · боёв: ${s.runs} · 💎 ${x.d.gems || 0} · заработано ${rub(x.d.pay?.earned || 0)}, выплачено ${rub(x.d.pay?.paid || 0)} · сохранено ${dt(x.d.savedAt)}</div>
+       <button class="say" data-sv="${i}">⚙ Настроить</button><div class="sv-ed" id="sv-ed${i}" hidden></div></div>`; }).join("") || "Сохранений пока нет.";
+    L.querySelectorAll("[data-sv]").forEach(b => b.onclick = () => edit(+b.dataset.sv)); }
+  function edit(i){ const x = items[i], c = Object.assign({}, x.d.cfg), ed = box.querySelector("#sv-ed" + i); if (!ed.hidden) { ed.hidden = true; return; } ed.hidden = false;
+    const num = (k, t, v) => `<label>${t}<input type="number" data-n="${k}" value="${v ?? ""}"></label>`, off = c.arcOff || [];
+    ed.innerHTML = `<div class="sv-grid"><label>Имя<input type="text" data-t="label" value="${esc(c.label || "")}" placeholder="Артём / тест"></label>
+      ${num("rate5", "₽ за 5★", c.rate5)}${num("rate34", "₽ за 3–4★", c.rate34)}${num("cap", "Оплачиваемых боёв в день", c.cap)}${num("tasks", "Заданий в бою", c.tasks)}${num("minutes", "Минут на 5★", c.minutes)}${num("chest", "₽ из сундука дня", c.chest)}
+      <label>Мини-игры<select data-s="arcEvery">${[[1,"после каждой волны"],[2,"через раз"],[3,"каждый 3-й"],[5,"каждый 5-й"]].map(([v, t]) => `<option value="${v}" ${(c.arcEvery || 1) == v ? "selected" : ""}>${t}</option>`).join("")}</select></label>
+      <label>Матерь мхов<select data-s="mossTheme">${[["d","D. Оружие"],["a","A. Логово"],["b","B. Тетрадь"],["c","C. Терминал"]].map(([v, t]) => `<option value="${v}" ${(c.mossTheme || "d") === v ? "selected" : ""}>${t}</option>`).join("")}</select></label>
+      <label class="sv-ck"><input type="checkbox" data-b="arcade" ${c.arcade !== false ? "checked" : ""}> Мини-игры включены</label><label class="sv-ck"><input type="checkbox" data-b="scenes" ${c.scenes !== false ? "checked" : ""}> Сценки перед заданием</label></div>
+      <div class="sv-arc">${AK.map(k => `<label class="sv-ck"><input type="checkbox" data-a="${k}" ${off.includes(k) ? "" : "checked"}> ${esc(ARC_NAMES[k])}</label>`).join("")}</div>
+      <div class="row"><button class="big" data-go>Сохранить для кода ${x.code}</button><span class="joke" data-msg></span></div>`;
+    ed.querySelector("[data-go]").onclick = async () => { const m = ed.querySelector("[data-msg]");
+      ed.querySelectorAll("[data-n]").forEach(e => { if (e.value !== "") c[e.dataset.n] = +e.value; }); ed.querySelectorAll("[data-s]").forEach(e => c[e.dataset.s] = isNaN(+e.value) ? e.value : +e.value);
+      ed.querySelectorAll("[data-b]").forEach(e => c[e.dataset.b] = e.checked); c.label = ed.querySelector("[data-t]").value.trim(); c.arcOff = AK.filter(k => !ed.querySelector(`[data-a="${k}"]`).checked);
+      const now = Date.now(); m.textContent = "Записываю…";
+      try { if (x.code === S.cloud) { S.cfg = Object.assign(S.cfg, c); S.cfgAt = now; S._cfgSent = JSON.stringify(S.cfg); save(); }
+        const d = Object.assign({}, x.d, {cfg:c, cfgAt:now}); x.sha = await CLOUD.putOther(x.code, d, x.sha); x.d = d; m.textContent = "✅ Сохранено"; setTimeout(load, 800); }
+      catch(e) { m.textContent = e.message; } }; }
+  load(); }; }
 var ARC_NAMES = {catch:"🧲 Ловец слов", rocks:"☄️ Метеоритный дождь", tir:"🎯 Тир на скорость", feed:"🍕 Покорми монстра", mole:"🔨 Бонк пришельцев", gum:"🫧 Жвачка"};
 
 /* ---------- v13: мини-игра «Матерь мхов» — примеры столбиком ---------- */
