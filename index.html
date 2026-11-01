@@ -516,6 +516,40 @@ kbd{display:none}
 .mm-pad{grid-template-columns:repeat(3,66px)}.mm-pad button{height:54px}
 #mm-quit{top:auto;bottom:12px;right:12px}
 @media (max-width:760px){.mm-board{grid-template-columns:1fr;grid-template-areas:"ex" "q" "in" "pad";justify-items:center}}
+/* v14 D: Оружие из чисел */
+.mt-d .mm-stage{background:radial-gradient(ellipse at 22% 45%,rgba(80,200,80,.28),transparent 45%),linear-gradient(180deg,#0A1626 0%,#06101C 60%,#0B1A12 100%);border:1px solid #2A7FA8;box-shadow:inset 0 0 60px rgba(0,0,0,.8)}
+.mt-d .mm-stage::before{content:"";position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(90deg,transparent 0 118px,rgba(57,208,255,.07) 118px 122px),linear-gradient(transparent 82%,rgba(40,120,40,.55)),radial-gradient(ellipse at 0 100%,rgba(60,160,60,.7),transparent 35%),radial-gradient(ellipse at 100% 0,rgba(60,160,60,.45),transparent 30%)}
+.mt-d .mm-stage::after{content:"";position:absolute;left:0;right:0;top:0;height:6px;background:repeating-linear-gradient(45deg,#FFC400 0 14px,#111 14px 28px);opacity:.8}
+.mt-d .mm-ex{background:rgba(4,12,24,.85);color:#7FE8FF;border:2px solid #39D0FF;text-shadow:0 0 12px #39D0FF;--hot:#FFE36A;--c2:#FF8A3D;--c3:#7CFF3A}
+.mt-d #mm-q{background:rgba(57,208,255,.12);color:#DFF7FF;border:1px solid #39D0FF}
+.mt-d .mm-in{background:#020A14;color:#FFE36A;border:2px solid #FFE36A;text-shadow:0 0 10px #FFB000}
+.mt-d .mm-pad button{background:linear-gradient(#23405E,#0E2136);color:#DFF7FF;border-color:#39D0FF;box-shadow:0 4px 0 #061220}
+.mt-d .mm-pad button:active{transform:translateY(3px);box-shadow:none}
+.mt-d .mm-boss{z-index:4}
+.mm-fx{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:3}
+.mm-jaw{transform-box:fill-box;animation:mmjaw 1.6s ease-in-out infinite}.mm-jl{transform-origin:100% 20%}.mm-jr{transform-origin:0 20%;animation-delay:.8s}
+@keyframes mmjaw{50%{transform:rotate(-14deg)}}.mm-jr{animation-name:mmjawr}@keyframes mmjawr{50%{transform:rotate(14deg)}}
+.mm-beam{position:absolute;height:14px;margin-top:-7px;transform-origin:0 50%;z-index:5;pointer-events:none;opacity:0;border-radius:7px;background:linear-gradient(90deg,#fff,#FFE36A 30%,#7CFF3A);box-shadow:0 0 18px #7CFF3A,0 0 40px #FFE36A}
+.mm-beam.on{animation:beam .45s ease-out}@keyframes beam{0%{opacity:1;height:4px}20%{opacity:1;height:18px}100%{opacity:0;height:2px}}
+.gun{grid-column:1/-1;position:relative;height:96px;width:min(560px,100%);margin:0 auto;z-index:4;filter:drop-shadow(0 6px 10px rgba(0,0,0,.7))}
+.gun-body{position:absolute;right:0;top:12px;width:62%;height:66px;border-radius:16px 30px 30px 16px;background:linear-gradient(180deg,#5A7A96,#2A3E55 55%,#18263A);border:3px solid #9FE6FF;box-shadow:inset 0 3px 0 rgba(255,255,255,.35)}
+.gun-back{position:absolute;right:-4px;top:4px;width:22px;height:82px;border-radius:8px;background:linear-gradient(#3A5068,#1A2738);border:3px solid #9FE6FF}
+.gun-grip{position:absolute;right:16%;top:70px;width:46px;height:30px;border-radius:0 0 12px 16px;background:linear-gradient(#2A3E55,#111C2A);border:3px solid #9FE6FF;border-top:0;transform:skewX(-14deg)}
+.gun-cells{position:absolute;left:12px;top:8px;display:flex;gap:8px}
+.gc{width:44px;height:44px;border-radius:10px;border:2px dashed #5FA9C9;background:#0B1C2E;display:grid;place-items:center;font:800 28px "Exo 2";color:#FFE36A}
+.gc.on{border:2px solid #CFFFB0;background:radial-gradient(#C8FF9A,#3FB33A);color:#05200A;box-shadow:0 0 16px #7CFF3A}
+.gc.pop{animation:gcp .35s}@keyframes gcp{40%{transform:scale(1.35)}}
+.gun-meter{position:absolute;left:12px;right:16px;bottom:5px;height:5px;background:#061220;border-radius:3px;overflow:hidden}.gun-meter i{display:block;height:100%;width:0;background:linear-gradient(90deg,#39D0FF,#7CFF3A);transition:width .3s}
+.gun-barrel{position:absolute;left:8%;top:28px;width:32%;height:36px;border-radius:6px 0 0 6px;background:linear-gradient(180deg,#8FA7BB,#3D5470 60%,#22344A);border:3px solid #9FE6FF;border-right:0;display:flex;gap:14%;padding-left:12%;align-items:center}
+.gun-barrel i{width:6px;height:28px;background:#1A2738;border-radius:2px}
+.gun-muzzle{position:absolute;left:calc(8% - 18px);top:22px;width:22px;height:48px;border-radius:8px;background:linear-gradient(#B8CCDD,#4B6380);border:3px solid #9FE6FF}
+.gun.full .gun-muzzle{box-shadow:0 0 22px #7CFF3A,0 0 6px #fff;animation:mz .5s infinite alternate}@keyframes mz{to{box-shadow:0 0 34px #FFE36A,0 0 10px #fff}}
+.gun.shot{animation:recoil .35s}@keyframes recoil{15%{transform:translateX(26px)}}
+.gun.jam{animation:jam .4s}@keyframes jam{20%,60%{transform:rotate(-4deg)}40%,80%{transform:rotate(3deg)}}
+.mt-d .mm-board{grid-template-areas:"gun gun" "ex pad" "q pad" "in pad"}.mt-d .gun{grid-area:gun}
+@media (max-width:760px){.mt-d .mm-board{grid-template-areas:"gun" "ex" "q" "in" "pad"}}
+.mt-d .mm-ex{grid-row:auto}.mt-d .mm-board{align-content:center}
+.gun-body{z-index:2}.gun-barrel{width:31%}
 
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
@@ -2980,7 +3014,7 @@ function cloudDlg(){
    <h3>Мини-игры</h3>
    <p>Галочка: игра выпадает между волнами. Кнопка «Играть» запускает её сразу, для проверки (звёзды и деньги не начисляются).</p>
    <div class="cfg"><label for="i-every">Как часто мини-игры</label><select id="i-every">${[[1,"после каждой волны"],[2,"через раз"],[3,"каждый 3-й перерыв"],[5,"каждый 5-й перерыв (редко)"]].map(([v, t]) => `<option value="${v}" ${(S.cfg.arcEvery || 1) === v ? "selected" : ""}>${t}</option>`).join("")}</select>
-    <label for="i-mt">Оформление «Матери мхов»</label><select id="i-mt">${[["a","A. Логово во мхах"],["b","B. Тетрадь в клетку"],["c","C. Заражённый терминал"]].map(([v, t]) => `<option value="${v}" ${(S.cfg.mossTheme || "a") === v ? "selected" : ""}>${t}</option>`).join("")}</select></div>
+    <label for="i-mt">Оформление «Матери мхов»</label><select id="i-mt">${[["d","D. Оружие из чисел"],["a","A. Логово во мхах"],["b","B. Тетрадь в клетку"],["c","C. Заражённый терминал"]].map(([v, t]) => `<option value="${v}" ${(S.cfg.mossTheme || "d") === v ? "selected" : ""}>${t}</option>`).join("")}</select></div>
    <p class="joke">Перерыв бывает между волнами боя. В остальные перерывы будет короткая передышка без игры.</p>
    <div class="arcl">${AK.map(k => `<div class="arci"><label><input type="checkbox" data-arc="${k}" ${off.includes(k) ? "" : "checked"}> ${esc(ARC_NAMES[k])}</label><button class="say" data-play="${k}">▶ Играть</button></div>`).join("")}</div>
    <h3>Облачное сохранение</h3>
@@ -3009,8 +3043,8 @@ const MOSS = (() => {
    <path d="M40 214 Q72 226 104 214 L106 223 Q72 236 38 223 Z M38 232 Q72 244 106 232 L102 241 Q72 252 42 241 Z" fill="#4F5E4B" stroke="none"/>
    <ellipse cx="72" cy="194" rx="7" ry="5" fill="#5F6E5A"/>
    <ellipse cx="72" cy="170" rx="24" ry="20" fill="url(#mmB)"/>
-   <path d="M54 176 q-14 4 -16 16 M54 182 q-8 8 -6 18 M90 176 q14 4 16 16 M90 182 q8 8 6 18" fill="none" stroke-width="3"/>
-   <path d="M58 156 q-14 -2 -18 8 q6 -2 10 2 M86 156 q14 -2 18 8 q-6 -2 -10 2" fill="#9AAA94" stroke-width="3"/>
+   <path class="mm-jaw mm-jl" d="M54 160 Q30 148 18 168 Q12 188 30 202 L35 195 L30 190 L35 184 L30 179 L36 174 Q40 168 50 172 Z" fill="#8E9E88" stroke-width="3.5"/>
+   <path class="mm-jaw mm-jr" d="M90 160 Q114 148 126 168 Q132 188 114 202 L109 195 L114 190 L109 184 L114 179 L108 174 Q104 168 94 172 Z" fill="#8E9E88" stroke-width="3.5"/>
    <ellipse cx="72" cy="142" rx="13" ry="8" fill="url(#mmB)"/></g>
    <path class="mm-hair" d="M30 132 Q14 128 10 112 L22 112 Q8 98 6 80 L20 86 Q8 66 12 46 L26 58 Q24 34 36 18 L44 36 Q50 14 66 6 L68 26 Q80 6 98 8 L92 26 Q110 14 126 22 L112 36 Q132 38 140 54 L122 58 Q140 72 138 92 L124 86 Q132 104 124 120 L114 108 Q116 124 106 134 Q104 110 98 98 Q86 72 66 74 Q46 76 40 100 Q36 116 30 132 Z" fill="url(#mmH)"/>
    <path d="M30 60 q8 -8 18 -6 M100 40 q10 2 16 10 M60 30 q8 -6 18 -4 M116 74 q6 6 6 14 M22 96 q2 -10 8 -14" fill="none" stroke="#1E5E1E" stroke-width="3"/>
@@ -3048,14 +3082,50 @@ const MOSS = (() => {
       return `<div class="mm-div"><div class="mm-l">${ln(s, s.length, "")}${E.lines.map(l => ln(l.t, l.end, l.cls)).join("")}</div><div class="mm-r"><div class="mm-dv">${m}</div><div class="mm-q">${E.quo || "&nbsp;"}</div></div></div>`; };
     return E; }
   const MAKERS = {"+":mkAdd, "−":mkSub, "×":mkMul, ":":mkDiv};
+  /* v14 вариант D «Оружие из чисел»: пушка заряжается верными цифрами, залп по боссу, частицы */
+  const GUN = (() => {
+    let cv, cx, P = [], cells = [], fr = 0, W = 0, H = 0, sh = 0;
+    const on = () => (S.cfg.mossTheme || "d") === "d";
+    const html = () => `<div class="gun" id="gun"><div class="gun-back"></div><div class="gun-body"><div class="gun-cells">${[0,1,2,3].map(i => `<b class="gc" id="gc${i}"></b>`).join("")}</div><div class="gun-meter"><i id="gun-m"></i></div></div><div class="gun-barrel"><i></i><i></i><i></i></div><div class="gun-muzzle" id="gun-mz"></div><div class="gun-grip"></div></div>`;
+    const stage = () => $("#v-moss .mm-stage");
+    function rel(el){ const a = stage().getBoundingClientRect(), b = el.getBoundingClientRect(); return {x:b.left - a.left + b.width / 2, y:b.top - a.top + b.height / 2, w:b.width, h:b.height}; }
+    function size(){ if (!cv) return; const r = stage().getBoundingClientRect(); W = cv.width = r.width; H = cv.height = r.height; }
+    function init(){ cv = $("#mm-fx"); cx = cv.getContext("2d"); size(); P = []; for (let i = 0; i < 40; i++) P.push(spore(true)); cells = []; cancelAnimationFrame(fr); loop(); }
+    function spore(any){ return {k:"s", x:Math.random() * W, y:any ? Math.random() * H : H + 10, vx:(Math.random() - .5) * .3, vy:-.2 - Math.random() * .5, r:1 + Math.random() * 3, a:.3 + Math.random() * .5, l:1e9}; }
+    function burst(x, y, n, k, col, sp){ for (let i = 0; i < n; i++) { const a = Math.random() * 6.283, v = sp * (.3 + Math.random()); P.push({k, x, y, vx:Math.cos(a) * v, vy:Math.sin(a) * v - (k === "leaf" ? 2 : 0), r:k === "leaf" ? 5 + Math.random() * 6 : 2 + Math.random() * 3, a:1, l:40 + Math.random() * 40, rot:Math.random() * 6, col}); } }
+    function loop(){ fr = requestAnimationFrame(loop); if (!cv || !cv.isConnected) return stop(); if (cv.width !== Math.round(stage().getBoundingClientRect().width)) size();
+      cx.clearRect(0, 0, W, H);
+      P = P.filter(p => { p.x += p.vx; p.y += p.vy; p.l--;
+        if (p.k === "s") { p.vx += (Math.random() - .5) * .04; if (p.y < -10) Object.assign(p, spore(false)); cx.fillStyle = `rgba(160,255,120,${p.a * (.6 + .4 * Math.sin(p.y / 20))})`; cx.beginPath(); cx.arc(p.x, p.y, p.r, 0, 7); cx.fill(); return true; }
+        p.a = Math.min(1, p.l / 25); if (p.k === "leaf") { p.vy += .12; p.vx *= .98; p.rot += .15; cx.save(); cx.translate(p.x, p.y); cx.rotate(p.rot); cx.globalAlpha = p.a; cx.fillStyle = p.col; cx.strokeStyle = "#0e0e0e"; cx.lineWidth = 2; cx.beginPath(); cx.moveTo(-p.r, 0); cx.quadraticCurveTo(0, -p.r, p.r, 0); cx.quadraticCurveTo(0, p.r * .6, -p.r, 0); cx.fill(); cx.stroke(); cx.restore(); }
+        else { p.vx *= .95; p.vy *= .95; cx.globalAlpha = p.a; cx.fillStyle = p.col; cx.shadowColor = p.col; cx.shadowBlur = 12; cx.beginPath(); cx.arc(p.x, p.y, p.r, 0, 7); cx.fill(); cx.shadowBlur = 0; cx.globalAlpha = 1; }
+        return p.l > 0; });
+      if (sh > 0) { sh--; stage().style.transform = `translate(${(Math.random() - .5) * sh}px,${(Math.random() - .5) * sh}px)`; if (!sh) stage().style.transform = ""; } }
+    function stop(){ cancelAnimationFrame(fr); cv = null; }
+    function reset(){ cells = []; paint(); const g = $("#gun"); if (g) g.classList.remove("full"); }
+    function paint(){ for (let i = 0; i < 4; i++) { const c = $("#gc" + i); if (!c) continue; const v = cells[i]; c.textContent = v ?? ""; c.className = "gc" + (v !== undefined ? " on" : ""); }
+      const m = $("#gun-m"); if (m) m.style.width = Math.min(100, cells.length * 25) + "%"; }
+    function charge(v){ if (cells.length >= 4) cells.shift(); cells.push(String(v).slice(-1)); paint(); const c = $("#gc" + (cells.length - 1)); if (c) { c.classList.add("pop"); const p = rel(c); burst(p.x, p.y, 14, "spark", "#7CFF3A", 4); }
+      sfx("clack"); if (cells.length >= 3) $("#gun").classList.add("full"); }
+    function misfire(){ const g = $("#gun"); g.classList.remove("jam"); void g.offsetWidth; g.classList.add("jam"); const m = rel($("#gun-mz")); burst(m.x, m.y, 18, "spark", "#888", 2.5);
+      const b = rel($("#mm-boss .mm-svg")); burst(b.x + 40, b.y, 10, "spark", "#B8FF6A", 5); sh = 14; }
+    function fire(){ const g = $("#gun"), m = rel($("#gun-mz")), b = rel($("#mm-boss .mm-svg")), beam = $("#mm-beam");
+      g.classList.remove("shot"); void g.offsetWidth; g.classList.add("shot");
+      const dx = b.x - m.x, dy = (b.y - b.h * .25) - m.y, L = Math.hypot(dx, dy);
+      Object.assign(beam.style, {left:m.x + "px", top:m.y + "px", width:L + "px", transform:`rotate(${Math.atan2(dy, dx)}rad)`}); beam.classList.remove("on"); void beam.offsetWidth; beam.classList.add("on");
+      burst(m.x, m.y, 20, "spark", "#FFE36A", 5);
+      setTimeout(() => { if (!cv) return; burst(b.x, b.y - b.h * .25, 26, "leaf", "#4FB34A", 6); burst(b.x, b.y - b.h * .25, 30, "spark", "#FFB03A", 7); sh = 22; }, 180); }
+    addEventListener("resize", size);
+    return {on, html, init, reset, charge, misfire, fire, stop};
+  })();
   let st = null, raf = 0;
-  function view(){ let v = $("#v-moss"); if (!v) { v = document.createElement("section"); v.className = "view"; v.id = "v-moss"; v.hidden = true; $("#v-arc").after(v); } v.className = "view mt-" + (S.cfg.mossTheme || "a"); return v; }
+  function view(){ let v = $("#v-moss"); if (!v) { v = document.createElement("section"); v.className = "view"; v.id = "v-moss"; v.hidden = true; $("#v-arc").after(v); } v.className = "view mt-" + (S.cfg.mossTheme || "d"); return v; }
   function run(done, test){
     const v = view(); st = {done, test, left:SEC + 5 * gearLv("boots"), score:0, hp:3, solved:0, phase:"intro", wrong:0, ops:shuf(["+", "−", "×", ":"])};
     v.innerHTML = `<div class="mm-top"><div class="ttype">🌿 Матерь мхов</div><div class="arc-hud"><span>Очки <b id="mm-sc">0</b></span><span>Рекорд <b>${(S.arcBest || {}).moss || 0}</b></span></div></div>
      <div class="arcbar"><i id="mm-bar"></i></div>
-     <div class="mm-stage cut"><div class="mm-moss" id="mm-moss"></div><div class="mm-boss" id="mm-boss">${SVG}<div class="mm-hp" id="mm-hp"></div><div class="mm-say" id="mm-say"></div></div>
-      <div class="mm-board"><div class="mm-ex" id="mm-ex"></div><div class="mm-q" id="mm-q"></div><div class="mm-in" id="mm-in"></div>
+     <div class="mm-stage cut">${GUN.on() ? '<canvas class="mm-fx" id="mm-fx"></canvas><div class="mm-beam" id="mm-beam"></div>' : ""}<div class="mm-moss" id="mm-moss"></div><div class="mm-boss" id="mm-boss">${SVG}<div class="mm-hp" id="mm-hp"></div><div class="mm-say" id="mm-say"></div></div>
+      <div class="mm-board">${GUN.on() ? GUN.html() : ""}<div class="mm-ex" id="mm-ex"></div><div class="mm-q" id="mm-q"></div><div class="mm-in" id="mm-in"></div>
        <div class="mm-pad">${[1,2,3,4,5,6,7,8,9,"⌫",0,"OK"].map(k => `<button data-k="${k}">${k}</button>`).join("")}</div></div>
       <div class="arc-ov" id="mm-ov"></div></div>
      ${test ? '<button class="say" id="mm-quit">✕ Выйти из теста</button>' : ""}`;
@@ -3063,10 +3133,10 @@ const MOSS = (() => {
     $("#mm-ov").innerHTML = `<div class="arc-card"><div class="eyebrow">Перезарядка · время боя на паузе</div><h2>🌿 Матерь мхов</h2><p>Матерь мхов оплетает базу! Решай примеры столбиком, шаг за шагом. Каждый решённый пример сжигает её мох. Ошибка отнимает 3 секунды.</p><button class="big" id="mm-go">В бой!</button></div>`;
     $("#mm-go").onclick = () => { $("#mm-ov").hidden = true; st.phase = "play"; next(); tick(); };
     v.querySelectorAll("[data-k]").forEach(b => b.onclick = () => key(b.dataset.k));
-    hp(); }
+    hp(); if (GUN.on()) GUN.init(); }
   function hp(){ $("#mm-hp").innerHTML = "💚".repeat(st.hp) + "🖤".repeat(3 - st.hp); }
   function say(t){ const s = $("#mm-say"); s.textContent = t; s.classList.remove("on"); void s.offsetWidth; s.classList.add("on"); }
-  function next(){ const op = st.ops[st.solved % 4]; st.E = MAKERS[op](); st.k = 0; stepIn(); }
+  function next(){ if (GUN.on()) GUN.reset(); const op = st.ops[st.solved % 4]; st.E = MAKERS[op](); st.k = 0; stepIn(); }
   function stepIn(){ const E = st.E; if (st.k >= E.steps.length) { E.finish(); draw(-1); return solved(); }
     st.S = E.steps[st.k](); st.inp = ""; st.miss = 0; draw(st.S.col); $("#mm-q").textContent = st.S.q; $("#mm-in").textContent = "?"; }
   function draw(col){ $("#mm-ex").innerHTML = st.E.render(col); }
@@ -3074,11 +3144,11 @@ const MOSS = (() => {
     if (k === "⌫") st.inp = st.inp.slice(0, -1); else if (k === "OK") return check(); else if (st.inp.length < 2) st.inp += k;
     $("#mm-in").textContent = st.inp || "?"; }
   function check(){ if (!st.inp) return; const v = +st.inp;
-    if (v === st.S.ans) { sfx("ok"); st.score += 1; st.S.go(v); st.k++; $("#mm-boss").classList.remove("hit"); void $("#mm-boss").offsetWidth; $("#mm-boss").classList.add("hit"); upd(); stepIn(); }
-    else { sfx("bad"); st.left = Math.max(0, st.left - 3); st.miss++; st.wrong++; growMoss(); say(pick(["Хи-хи, мимо!", "Мох растёт!", "Неверно, букашка!", "Ещё разок, малыш!"]));
+    if (v === st.S.ans) { sfx("ok"); st.score += 1; st.S.go(v); st.k++; $("#mm-boss").classList.remove("hit"); void $("#mm-boss").offsetWidth; $("#mm-boss").classList.add("hit"); upd(); if (GUN.on()) GUN.charge(v); stepIn(); }
+    else { sfx("bad"); st.left = Math.max(0, st.left - 3); st.miss++; st.wrong++; growMoss(); if (GUN.on()) GUN.misfire(); say(pick(["Хи-хи, мимо!", "Мох растёт!", "Неверно, букашка!", "Ещё разок, малыш!"]));
       $("#mm-in").innerHTML = `<span class="bad">${st.inp}</span> <small>−3 сек</small>${st.miss >= 2 ? ` <small>Подсказка: ${st.S.ans}</small>` : ""}`; st.inp = ""; } }
   function growMoss(){ const m = $("#mm-moss"); m.style.setProperty("--g", Math.min(1, st.wrong * .12)); }
-  function solved(){ st.solved++; st.score += 5; st.hp = Math.max(0, st.hp - 1); hp(); upd(); say(pick(["Ай! Мой мох!", "Ты меня обжёг!", "Не может быть!"])); sfx("boom");
+  function solved(){ if (GUN.on()) GUN.fire(); st.solved++; st.score += 5; st.hp = Math.max(0, st.hp - 1); hp(); upd(); say(pick(["Ай! Мой мох!", "Ты меня обжёг!", "Не может быть!"])); sfx("boom");
     st.wrong = Math.max(0, st.wrong - 3); growMoss();
     if (st.hp === 0) { st.score += 10; say("Я ещё вернусь..."); st.hp = 3; setTimeout(hp, 900); }
     $("#mm-q").textContent = "Пример решён! +5"; st.phase = "pause"; setTimeout(() => { if (st && st.phase === "pause") { st.phase = "play"; next(); } }, 1400); }
@@ -3086,7 +3156,7 @@ const MOSS = (() => {
   function tick(){ let last = performance.now(); cancelAnimationFrame(raf);
     const f = now => { if (!st) return; raf = requestAnimationFrame(f); if (document.hidden || $("#v-moss").hidden) { last = now; return; }
       if (st.phase === "play" || st.phase === "pause") { st.left -= (now - last) / 1000; $("#mm-bar").style.width = Math.max(0, 100 * st.left / SEC) + "%"; if (st.left <= 0) end(); } last = now; }; raf = requestAnimationFrame(f); }
-  function end(quit){ cancelAnimationFrame(raf); const s = st; if (!s) return; s.phase = "end";
+  function end(quit){ cancelAnimationFrame(raf); GUN.stop(); const s = st; if (!s) return; s.phase = "end";
     if (quit) { st = null; return s.done(); }
     sfx("win"); S.arcBest = S.arcBest || {}; const rec = s.score > (S.arcBest.moss || 0); if (rec) S.arcBest.moss = s.score; const gm = Math.floor(s.score / 5); S.gems = (S.gems || 0) + gm; save(); dqEvent("arcade", {score:s.score});
     const o = $("#mm-ov"); o.hidden = false; o.innerHTML = `<div class="arc-card"><div class="eyebrow">Время вышло</div><h2>${s.score} очков${rec && s.score ? " · 🏆 рекорд!" : ""}</h2><p>Решено примеров: ${s.solved}. ${gm ? `+${gm} 💎` : ""}</p><button class="big" id="mm-end">${s.test ? "Выйти в Штаб" : "В бой! →"}</button></div>`;
