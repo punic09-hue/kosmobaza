@@ -3002,14 +3002,16 @@ const MOSS = (() => {
   const dg = (n, i) => Math.floor(n / 10 ** i) % 10, len = n => String(n).length;
   const SVG = `<svg viewBox="0 0 150 270" class="mm-svg"><defs><radialGradient id="mmF" cx=".45" cy=".35" r=".7"><stop offset="0" stop-color="#C4D0BE"/><stop offset="1" stop-color="#7E9079"/></radialGradient><radialGradient id="mmB" cx=".4" cy=".35" r=".75"><stop offset="0" stop-color="#C8D2C4"/><stop offset="1" stop-color="#76866F"/></radialGradient><linearGradient id="mmH" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4FB34A"/><stop offset="1" stop-color="#2E7F2E"/></linearGradient></defs>
    <g stroke="#0E0E0E" stroke-width="4" stroke-linejoin="round" stroke-linecap="round">
-   <path d="M96 222 Q122 236 112 252 Q104 262 92 266 Q100 254 96 246 Q88 236 72 236 Z" fill="url(#mmB)"/>
-   <ellipse cx="78" cy="222" rx="24" ry="17" fill="url(#mmB)"/>
-   <ellipse cx="72" cy="192" rx="30" ry="21" fill="url(#mmB)"/>
-   <path d="M50 186 q22 12 46 0" fill="none" stroke-width="3"/>
-   <ellipse cx="72" cy="160" rx="27" ry="16" fill="url(#mmB)"/>
-   <path d="M60 150 q-16 -2 -20 8 q6 -2 10 2 M84 150 q14 0 18 10 q-6 -3 -10 1" fill="#9AAA94" stroke-width="3"/>
-   <path d="M58 168 q-12 0 -14 10 q5 -3 9 0 M86 166 q12 2 12 12 q-5 -3 -9 -1" fill="#9AAA94" stroke-width="3"/>
-   <ellipse cx="72" cy="138" rx="17" ry="9" fill="url(#mmB)"/>
+   <g class="mm-body">
+   <path d="M56 160 Q40 150 22 156 Q30 166 50 166 Z M88 160 Q104 150 122 156 Q114 166 94 166 Z" fill="#DDE8E0" fill-opacity=".75" stroke-width="3"/>
+   <path d="M72 196 Q104 196 108 222 Q108 246 72 268 Q36 246 36 222 Q40 196 72 196 Z" fill="url(#mmB)"/>
+   <path d="M40 214 Q72 226 104 214 M38 232 Q72 244 106 232 M48 250 Q72 260 96 250" fill="none" stroke-width="3"/>
+   <path d="M40 214 Q72 226 104 214 L106 223 Q72 236 38 223 Z M38 232 Q72 244 106 232 L102 241 Q72 252 42 241 Z" fill="#4F5E4B" stroke="none"/>
+   <ellipse cx="72" cy="194" rx="7" ry="5" fill="#5F6E5A"/>
+   <ellipse cx="72" cy="170" rx="24" ry="20" fill="url(#mmB)"/>
+   <path d="M54 176 q-14 4 -16 16 M54 182 q-8 8 -6 18 M90 176 q14 4 16 16 M90 182 q8 8 6 18" fill="none" stroke-width="3"/>
+   <path d="M58 156 q-14 -2 -18 8 q6 -2 10 2 M86 156 q14 -2 18 8 q-6 -2 -10 2" fill="#9AAA94" stroke-width="3"/>
+   <ellipse cx="72" cy="142" rx="13" ry="8" fill="url(#mmB)"/></g>
    <path class="mm-hair" d="M30 132 Q14 128 10 112 L22 112 Q8 98 6 80 L20 86 Q8 66 12 46 L26 58 Q24 34 36 18 L44 36 Q50 14 66 6 L68 26 Q80 6 98 8 L92 26 Q110 14 126 22 L112 36 Q132 38 140 54 L122 58 Q140 72 138 92 L124 86 Q132 104 124 120 L114 108 Q116 124 106 134 Q104 110 98 98 Q86 72 66 74 Q46 76 40 100 Q36 116 30 132 Z" fill="url(#mmH)"/>
    <path d="M30 60 q8 -8 18 -6 M100 40 q10 2 16 10 M60 30 q8 -6 18 -4 M116 74 q6 6 6 14 M22 96 q2 -10 8 -14" fill="none" stroke="#1E5E1E" stroke-width="3"/>
    <path d="M42 96 Q48 72 72 72 Q98 72 104 96 Q104 120 86 132 Q74 140 60 132 Q42 120 42 96 Z" fill="url(#mmF)"/>
