@@ -3216,10 +3216,10 @@ const MOSS = (() => {
       <div class="arc-ov" id="mm-ov"></div></div>
      ${test ? '<button class="say" id="mm-quit">✕ Выйти из теста</button>' : ""}`;
     show("v-moss"); if (test) $("#mm-quit").onclick = () => end(true);
-    $("#mm-ov").innerHTML = `<div class="arc-card"><div class="eyebrow">Перезарядка · время боя на паузе</div><h2>🌿 Матерь мхов</h2><p>Матерь мхов оплетает базу! Решай примеры столбиком, шаг за шагом. Каждый решённый пример сжигает её мох. Ошибка отнимает 3 секунды.</p><button class="big" id="mm-go">В бой!</button></div>`;
+    $("#mm-ov").innerHTML = `<div class="arc-card"><div class="eyebrow">Перезарядка · время боя на паузе</div><h2>🌿 Матерь мхов</h2><p>Матерь мхов оплетает базу! Решай примеры столбиком, шаг за шагом. Каждый решённый пример сжигает её мох. Времени нет — думай спокойно. Победи Матерь мхов: реши 3 примера!</p><button class="big" id="mm-go">В бой!</button></div>`;
     $("#mm-go").onclick = () => { $("#mm-ov").hidden = true; st.phase = "play"; next(); tick(); };
     v.querySelectorAll("[data-k]").forEach(b => b.onclick = () => key(b.dataset.k));
-    hp(); if (GUN.on()) GUN.init(); }
+    hp(); $("#mm-bar").style.width = "0%"; if (GUN.on()) GUN.init(); }
   function hp(){ const bs = $("#mm-boss"), d = 3 - st.hp, was = +(bs.dataset.d || 0);
     if (GUN.on() && d > was) setTimeout(() => { if (!st) return; bs.dataset.d = d; GUN.wreck(d); }, 440); else { bs.dataset.d = d; if (GUN.on() && d < was) GUN.wreck(0); }
     $("#mm-hp").innerHTML = "💚".repeat(st.hp) + "🖤".repeat(3 - st.hp); }
@@ -3233,17 +3233,18 @@ const MOSS = (() => {
     $("#mm-in").textContent = st.inp || "?"; }
   function check(){ if (!st.inp) return; const v = +st.inp;
     if (v === st.S.ans) { sfx("ok"); st.score += 1; st.S.go(v); st.k++; $("#mm-boss").classList.remove("hit"); void $("#mm-boss").offsetWidth; $("#mm-boss").classList.add("hit"); upd(); if (GUN.on()) GUN.charge(v); stepIn(); }
-    else { sfx("bad"); st.left = Math.max(0, st.left - 3); st.miss++; st.wrong++; growMoss(); if (GUN.on()) GUN.misfire(); say(pick(["Хи-хи, мимо!", "Мох растёт!", "Неверно, букашка!", "Ещё разок, малыш!"]));
-      $("#mm-in").innerHTML = `<span class="bad">${st.inp}</span> <small>−3 сек</small>${st.miss >= 2 ? ` <small>Подсказка: ${st.S.ans}</small>` : ""}`; st.inp = ""; } }
+    else { sfx("bad"); st.miss++; st.wrong++; growMoss(); if (GUN.on()) GUN.misfire(); say(pick(["Хи-хи, мимо!", "Мох растёт!", "Неверно, букашка!", "Ещё разок, малыш!"]));
+      $("#mm-in").innerHTML = `<span class="bad">${st.inp}</span>${st.miss >= 2 ? ` <small>Подсказка: ${st.S.ans}</small>` : ""}`; st.inp = ""; } }
   function growMoss(){ const m = $("#mm-moss"); m.style.setProperty("--g", Math.min(1, st.wrong * .12)); }
   function solved(){ if (GUN.on()) GUN.fire(); st.solved++; st.score += 5; st.hp = Math.max(0, st.hp - 1); hp(); upd(); say(pick(["Ай! Мой мох!", "Ты меня обжёг!", "Не может быть!"])); sfx("boom");
     st.wrong = Math.max(0, st.wrong - 3); growMoss();
-    if (st.hp === 0) { st.score += 10; say("Я ещё вернусь..."); st.hp = 3; setTimeout(() => st && hp(), GUN.on() ? 2200 : 900); }
+    $("#mm-bar").style.width = Math.min(100, 100 * st.solved / 3) + "%";
+    if (st.hp === 0) { st.score += 10; say("Я ещё вернусь..."); $("#mm-q").textContent = "Матерь мхов побеждена! +10"; st.phase = "pause"; setTimeout(() => st && end(), GUN.on() ? 2400 : 1600); return; }
     $("#mm-q").textContent = "Пример решён! +5"; st.phase = "pause"; setTimeout(() => { if (st && st.phase === "pause") { st.phase = "play"; next(); } }, 1400); }
   function upd(){ $("#mm-sc").textContent = st.score; }
   function tick(){ let last = performance.now(); cancelAnimationFrame(raf);
     const f = now => { if (!st) return; raf = requestAnimationFrame(f); if (document.hidden || $("#v-moss").hidden) { last = now; return; }
-      if (st.phase === "play" || st.phase === "pause") { st.left -= (now - last) / 1000; $("#mm-bar").style.width = Math.max(0, 100 * st.left / SEC) + "%"; if (st.left <= 0) end(); } last = now; }; raf = requestAnimationFrame(f); }
+      last = now; }; raf = requestAnimationFrame(f); }
   function end(quit){ cancelAnimationFrame(raf); GUN.stop(); const s = st; if (!s) return; s.phase = "end";
     if (quit) { st = null; return s.done(); }
     sfx("win"); S.arcBest = S.arcBest || {}; const rec = s.score > (S.arcBest.moss || 0); if (rec) S.arcBest.moss = s.score; const gm = Math.floor(s.score / 5); S.gems = (S.gems || 0) + gm; save(); dqEvent("arcade", {score:s.score});
